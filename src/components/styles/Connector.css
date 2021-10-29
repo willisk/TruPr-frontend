@@ -1,0 +1,43 @@
+.header {
+  text-align: center;
+}
+
+.invalid-network-banner {
+  color: black;
+  background-color: #f57012;
+  padding: 0.5em 1em;
+  text-align: center;
+}
+.invalid-network-banner:hover {
+  cursor: default;
+}
+
+/* .MuiDialogContent-root .MuiButton-label,
+.MuiTypography-h6 {
+  color: #fff !important;
+} */
+
+.wallet-info .balance span {
+  display: none;
+  cursor: default;
+}
+
+.wallet-button {
+  border: 3px solid transparent !important;
+  border-radius: 12px !important;
+  background-image: linear-gradient(to right bottom, #3f51b5, #09bd49);
+  background-origin: border-box;
+  box-shadow: 5px 1000px 4px white inset;
+  padding: 4px 12px !important;
+  /* margin: 1px !important; */
+  text-transform: none !important;
+  float: right;
+}
+
+.wallet-button:hover {
+  /* border: 4px solid transparent !important; */
+  /* padding: 3px 11px !important; */
+  /* margin: 0 !important; */
+  /* background-color: #b2e1e7; */
+  box-shadow: 5px 1000px 8px rgba(255, 255, 255, 0.8) inset;
+}
