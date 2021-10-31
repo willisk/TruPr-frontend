@@ -1,6 +1,6 @@
 // import Dashboard from './Dashboard';
 import { WalletConnectButton } from './WalletConnector';
-import { ContractVitals, CreateAgreement, Web3Component } from './Contract';
+import { ContractVitals, CreateAgreement, HistoricalAgreements } from './Contract';
 // import { createContext, useContext } from "react";
 
 // import TwitterIcon from "@mui/icons-material/Twitter";
@@ -8,10 +8,9 @@ import { SvgIcon } from '@mui/material';
 
 import { ReactComponent as TwitterLogo } from '../images/twitter.svg';
 import { ReactComponent as DiscordLogo } from '../images/discord.svg';
-import { ReactComponent as OpenseaLogo } from '../images/opensea.svg';
+// import { ReactComponent as OpenseaLogo } from '../images/opensea.svg';
 
 import Button from '@mui/material/Button';
-import { Web3Context } from './Web3Connector';
 // import { Dashboard } from '@mui/icons-material';
 // import Stack from '@mui/material/Stack';
 // import { useContext } from 'react';
@@ -48,22 +47,8 @@ function Home() {
         </div>
         <div className="container">
           <ContractVitals />
-
-          <Web3Component>
-            <CreateAgreement />
-          </Web3Component>
-
-          {/* <Dashboard
-          startDate={startDate}
-          contractDefaults={{
-            supplyMinted: 0,
-            supplyTotal: contractSupplyTotal,
-            supplyReserve: contractSupplyReserve,
-            mintPrice: contractMintPrice,
-            purchaseLimit: contractPurchaseLimit,
-          }}
-          goLive={goLive}
-        /> */}
+          <HistoricalAgreements />
+          <CreateAgreement />
         </div>
         <div className="footer"></div>
       </div>

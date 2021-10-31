@@ -7,10 +7,10 @@ import Home from './components/Home';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#006400',
+      main: '#0f0a3a',
     },
     secondary: {
-      main: '#ffa500',
+      main: '#481c07',
     },
   },
 });

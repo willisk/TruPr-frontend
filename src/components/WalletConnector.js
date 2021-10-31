@@ -1,5 +1,5 @@
 import './styles/Connector.css';
-import { createContext, useMemo, useState, useContext } from 'react';
+import { createContext, useMemo, useEffect, useState, useContext } from 'react';
 import { Link, Snackbar, Button } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 
@@ -105,7 +105,7 @@ export function WalletProvider({ children }) {
     addNetworkListener();
   }, []);
 
-  useMemo(() => {
+  useEffect(() => {
     if (provider) {
       setSignContract(contract.connect(provider.getSigner()));
       provider.getNetwork().then(setNetwork).catch(handleError);

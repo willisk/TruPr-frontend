@@ -28,14 +28,14 @@ export const Web3Provider = ({ children }) => {
 
   const contract = new ethers.Contract(contractAddress, contractABI, web3Provider);
 
+  window.contract = contract; // XXX: REMOVE THIS!!!!
+
   const context = {
     contract: contract,
     web3Provider: web3Provider,
     isValidChainId: isValidChainId,
     setChainId: setChainId,
   };
-
-  console.log('THIS SHOULDNT BE CALLED MORE THAN ONCE');
 
   return (
     <Web3Context.Provider value={context}>
