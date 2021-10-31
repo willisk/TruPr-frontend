@@ -47,8 +47,8 @@ function Home() {
         </div>
         <div className="container">
           <ContractVitals />
-          <HistoricalAgreements />
           <CreateAgreement />
+          <HistoricalAgreements />
         </div>
         <div className="footer"></div>
       </div>
