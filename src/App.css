@@ -1,20 +1,76 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap');
 
-body {
-  /* text-align: center; */
+.socials {
+  float: right;
+}
+
+.header {
+  height: 40px;
+  /* padding: 3px; */
+  /* background-color: #bcfec1; */
+  /* box-shadow: 0px 3px 5px #00000033; */
+}
+
+.background {
+  text-align: center;
   margin: 0;
   font-family: 'Rubik';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* background-image: linear-gradient(
+    109.6deg,
+    rgba(247, 253, 166, 0.5) 11.2%,
+    rgba(128, 255, 221, 0.5) 57.8%,
+    rgba(255, 128, 249, 0.5) 85.9%
+  ); */
+  /* background-size: cover; */
+  /* background-attachment: fixed; */
+  /* color: white; */
+  background: radial-gradient(50px circle at 100px 100px, #ffffff 50%, transparent 51%),
+    radial-gradient(75px circle at 300px 400px, #fd0000 50%, transparent 51%),
+    radial-gradient(100px circle at 400px 20px, #000000 50%, transparent 51%),
+    radial-gradient(25px circle at 500px 250px, #a23b72 50%, transparent 51%),
+    radial-gradient(200px circle at 250px 200px, #00b1ff 50%, transparent 50.4%),
+    radial-gradient(10px circle at 50px 420px, #0079ff 50%, transparent 51%);
+  background-color: #1f2128;
+}
+
+.container {
+  min-height: 70vh;
+  padding: 1em;
+}
+
+.glass {
+  margin: 1em auto;
+  background: inherit;
+  /* background-color: yellow; */
+  /* backdrop-filter: blur(5px); */
+  box-shadow: inset 0 0 0 200px rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(14.5px);
+  -webkit-backdrop-filter: blur(14.5px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-.socials {
-  float: left;
+/* .module:before {
+  box-shadow: inset 0 0 2000px rgba(255, 255, 255, 0.5);
 }
-.header {
-  height: 40px;
+
+.module:before {
+  box-shadow: inset 0 0 2000px rgba(255, 255, 255, 0.5);
+  filter: blur(10px);
 }
+
+.module {
+  background: inherit;
+}
+
+.module:before {
+  background: inherit;
+} */

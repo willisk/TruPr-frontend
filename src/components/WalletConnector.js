@@ -1,12 +1,11 @@
 import './styles/Connector.css';
 import { createContext, useMemo, useEffect, useState, useContext } from 'react';
-import { Link, Snackbar, Button } from '@mui/material';
+import { Snackbar, Button } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 
 import { ethers } from 'ethers';
 
 import { Web3Context } from './Web3Connector';
-import { getTransactionLink } from '../utils/ChainIds';
 
 function getProvider() {
   if (window.ethereum) {
@@ -33,15 +32,6 @@ export const WalletConnectButton = () => {
     <Button className="wallet-button" variant="outlined" onClick={requestAccount}>
       {addressInfo}
     </Button>
-  );
-};
-
-export const TransactionLink = ({ txHash, message }) => {
-  const { network } = useContext(WalletContext);
-  return (
-    <Link href={getTransactionLink(txHash, network?.chainId)} target="_blank" rel="noreferrer">
-      {message}
-    </Link>
   );
 };
 
