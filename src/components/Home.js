@@ -78,7 +78,6 @@ function Home({ classes }) {
           sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, width: '100%' }}
         >
           {(tab === 0 && <PanelOne />) || (tab === 1 && <PanelTwo />) || (tab === 2 && <PanelThree />)}
-          <DevTools />
         </Box>
         <Box className="footer" sx={{ flexGrow: 1, borderTop: 1, borderColor: 'divider' }}>
           <Socials />

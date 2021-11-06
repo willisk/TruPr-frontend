@@ -1,5 +1,10 @@
 import { ethers } from 'ethers';
+import { getNetworkName } from './chainIds';
+
 const { abi: ERC20ABI } = require('../contracts/ERC20.json');
+
+// export const VALID_CHAIN_IDS = ['42', '4'];
+export const VALID_CHAIN_IDS = ['42'];
 
 const contractAddress = {
   rinkeby: '0xD22460D669B37b90fB5b1bC1855b2E43084CFb3D',
@@ -15,25 +20,14 @@ const whitelist = [
   },
 ];
 
-export const getContractAddress = (networkName) => {
-  return contractAddress[networkName];
-};
-
-export const VALID_CHAIN_IDS = [42, 4];
-
-export const A_VALID_NETWORK = ethers.providers.getNetwork(VALID_CHAIN_IDS[0]);
-
 export const PLATFORMS_TO_ID = {
   Twitter: 0,
   Instagram: 1,
 };
 
-export const ID_TO_PLATFORMS = {
-  0: 'Twitter',
-  1: 'Instagram',
+export const getContractAddress = (networkName) => {
+  return contractAddress[networkName];
 };
-
-export const oneWeek = 7 * 24 * 60 * 60 * 1000;
 
 export const DURATION_CHOICES = {
   None: 0,
@@ -42,6 +36,10 @@ export const DURATION_CHOICES = {
   'One Week': 1 * 7 * 24 * 60 * 60 * 1000,
   'Two Weeks': 2 * 7 * 24 * 60 * 60 * 1000,
 };
+
+export const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+export const A_VALID_CHAIN_ID = VALID_CHAIN_IDS[0];
 
 // builds dict indexed by key, resolves address, adds 'contract' entry
 const buildContractsIndexedBy = (obj, key, chainName, provider = null) => {

@@ -1,12 +1,9 @@
 import { ethers } from 'ethers';
 import { useState, createContext, useContext } from 'react';
-import { Snackbar, Button, Link } from '@mui/material';
-import MuiAlert from '@mui/material/Alert';
+import { Button } from '@mui/material';
 
-import { WalletContext } from './WalletConnector';
-import { getNetworkName, getTransactionLink } from '../config/chainIds';
-
-import { A_VALID_NETWORK, VALID_CHAIN_IDS, getContractAddress } from '../config/config';
+import { getNetworkName } from '../config/chainIds';
+import { A_VALID_CHAIN_ID, VALID_CHAIN_IDS, getContractAddress } from '../config/config';
 
 const { abi: contractABI } = require('../contracts/PrivateEscrow.json');
 
@@ -24,15 +21,6 @@ const getProvider = (networkName) => {
   if (networkName === 'kovan') return web3ProviderKovan;
 };
 
-export const TransactionLink = ({ txHash, message }) => {
-  const { network } = useContext(WalletContext);
-  return (
-    <Link href={getTransactionLink(txHash, network?.chainId)} target="_blank" rel="noreferrer">
-      {message}
-    </Link>
-  );
-};
-
 export const NetworkButton = () => {
   const { networkName } = useContext(Web3Context);
   return (
@@ -42,89 +30,43 @@ export const NetworkButton = () => {
   );
 };
 
-const parseTxError = (e) => {
-  // console.error('error', e);
-  try {
-    return JSON.parse(/\(error=(.+), method.+\)/g.exec(e.message)[1]).message;
-  } catch (error) {
-    return e?.message;
-  }
-};
-
 export const Web3Context = createContext({});
 
 export const Web3Connector = ({ children }) => {
-  const [chainId, setChainId] = useState(VALID_CHAIN_IDS[0]);
-  const [alertState, setAlertState] = useState({
-    open: false,
-    message: '',
-    severity: undefined,
-  });
-
-  const network = ethers.providers.getNetwork(chainId);
-  const isValidChainId = VALID_CHAIN_IDS.includes(chainId);
+  const [chainId, setChainId] = useState(A_VALID_CHAIN_ID);
 
   const networkName = getNetworkName(chainId);
-
-  // XXX: memoize this
   const contractAddress = getContractAddress(networkName);
   const web3Provider = getProvider(networkName);
 
-  const contract = new ethers.Contract(contractAddress, contractABI, web3Provider);
+  const isValidChainId = VALID_CHAIN_IDS.includes(chainId);
+  const contract = isValidChainId && new ethers.Contract(contractAddress, contractABI, web3Provider);
 
   window.contract = contract; // XXX: REMOVE THIS!!!!
 
-  const handleAlertClose = (event, reason) => {
-    if (reason !== 'clickaway') setAlertState({ ...alertState, open: false });
+  console.log('CHAIN ID', chainId);
+  const setChainIdTest = (id) => {
+    console.log('calling set chain id', id);
+    setChainId(id);
   };
-
-  const handleTxError = (e) => {
-    setAlertState({
-      open: true,
-      message: parseTxError(e),
-      severity: 'error',
-    });
-  };
-
-  // const handleTx = async (tx) => {
-  async function handleTx(tx) {
-    setAlertState({
-      open: true,
-      message: <TransactionLink txHash={tx.hash} message="Processing Transaction" />,
-      severity: 'info',
-    });
-    const { transactionHash } = await tx.wait();
-    setAlertState({
-      open: true,
-      message: <TransactionLink txHash={transactionHash} message="Transaction successful!" />,
-      severity: 'success',
-    });
-    return tx;
-  }
 
   const context = {
     contract: contract,
     web3Provider: web3Provider,
     networkName: networkName,
+    chainId: chainId,
     isValidChainId: isValidChainId,
-    setChainId: setChainId,
-    handleTx: handleTx,
-    handleTxError: handleTxError,
+    setChainId: setChainIdTest,
   };
 
   return (
     <Web3Context.Provider value={context}>
       {!isValidChainId && (
         <div className="invalid-network-banner">
-          Warning: connected to {network?.name} network. Please switch to {A_VALID_NETWORK.name} network.
+          Warning: connected to {networkName} network. Please switch to {getNetworkName(A_VALID_CHAIN_ID)} network.
         </div>
       )}
       {children}
-      <Snackbar open={alertState.open} autoHideDuration={6000} onClose={handleAlertClose}>
-        <MuiAlert onClose={handleAlertClose} severity={alertState.severity}>
-          {alertState.message}
-        </MuiAlert>
-      </Snackbar>
     </Web3Context.Provider>
   );
 };

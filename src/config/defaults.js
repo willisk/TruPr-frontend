@@ -22,19 +22,21 @@ export const DTextFieldInfo = (props) => (
     inputProps={{
       readOnly: true,
     }}
-    style={{
-      '.MuiInput-underline:before': {
-        borderBottom: '2px solid red',
-      },
-      /* hover (double-ampersand needed for specificity reasons. */
-      // && .MuiInput-underline:hover:before {
-      //   border-bottom: 2px solid lightblue;
-      // }
-      // /* focused */
-      // .MuiInput-underline:after {
-      //   border-bottom: 2px solid red;
-      // }
-    }}
+    style={
+      {
+        // '.MuiInput-underline:before': {
+        //   borderBottom: '2px solid red',
+        // },
+        /* hover (double-ampersand needed for specificity reasons. */
+        // && .MuiInput-underline:hover:before {
+        //   border-bottom: 2px solid lightblue;
+        // }
+        // /* focused */
+        // .MuiInput-underline:after {
+        //   border-bottom: 2px solid red;
+        // }
+      }
+    }
     {...props}
   />
 );

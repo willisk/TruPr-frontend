@@ -31,5 +31,6 @@ export const getNetworkName = (chain) => ID_TO_CHAINNAME_SHORT[chain];
 export const getNetworkNameLong = (chain) => ID_TO_CHAINNAME_LONG[chain];
 
 export const getTransactionLink = (txHash, chainId) => {
+  console.log('chainid', chainId);
   return (blockExplorerURLs[chainId] ?? 'transaction: ') + txHash;
 };

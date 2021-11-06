@@ -145,8 +145,8 @@ export const CreateTask = () => {
   const isTouched = (key) => Object.keys(touched).includes(key);
 
   const { tokenWhitelist, tokenApprovals, tokenBalances, updateApprovals } = useContext(TokenContext);
-  const { walletAddress, signContract, walletProvider } = useContext(WalletContext);
-  const { handleTxError, handleTx, contract } = useContext(Web3Context);
+  const { handleTx, handleTxError, walletAddress, signContract, walletProvider } = useContext(WalletContext);
+  const { contract } = useContext(Web3Context);
 
   // const handleTx = handleTxWrapper(() => {});
   const token = tokenWhitelist[tokenSymbol];
@@ -371,6 +371,7 @@ export const CreateTask = () => {
           </Button>
         </Stack>
       </DStack>
+      <DevTools />
     </LocalizationProvider>
   );
 };
@@ -386,9 +387,7 @@ export const DevTools = () => {
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
 
   const { tokenWhitelist, tokenBalances, updateBalances } = useContext(TokenContext);
-  const { walletAddress, walletProvider } = useContext(WalletContext);
-  const { handleTxError, handleTx } = useContext(Web3Context);
-  console.log(useContext(TokenContext));
+  const { handleTxError, handleTx, walletAddress, walletProvider } = useContext(WalletContext);
 
   const token = tokenWhitelist[tokenSymbol];
 
