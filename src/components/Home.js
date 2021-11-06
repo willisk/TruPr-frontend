@@ -1,5 +1,5 @@
 import { WalletConnectButton } from './WalletConnector';
-import { ContractVitals, CreateTask, OpenTasks } from './Contract';
+import { ContractVitals, CreateTask, DevTools, OpenTasks } from './Contract';
 
 import { ReactComponent as TwitterLogo } from '../images/twitter.svg';
 import { ReactComponent as DiscordLogo } from '../images/discord.svg';
@@ -14,6 +14,7 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { Grid } from '@mui/material';
+import { NetworkButton } from './Web3Connector';
 
 const Socials = () => (
   <div className="socials">
@@ -68,6 +69,7 @@ function Home({ classes }) {
               <Tab label="Create Task" {...a11yProps(2)} />
             </Tabs>
           </Grid>
+          <NetworkButton />
           <WalletConnectButton />
         </Grid>
         <Box
@@ -76,6 +78,7 @@ function Home({ classes }) {
           sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, width: '100%' }}
         >
           {(tab === 0 && <PanelOne />) || (tab === 1 && <PanelTwo />) || (tab === 2 && <PanelThree />)}
+          <DevTools />
         </Box>
         <Box className="footer" sx={{ flexGrow: 1, borderTop: 1, borderColor: 'divider' }}>
           <Socials />

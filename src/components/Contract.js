@@ -1,8 +1,7 @@
 import React from 'react';
 import { useMemo, useEffect, useState, useContext } from 'react';
-import { MenuItem, Button, InputAdornment } from '@mui/material';
-import {} from '@mui/material';
-import { DStack, DTextField, DTextFieldInfo, DDateTimePicker } from './defaults';
+import { Stack, MenuItem, Button, InputAdornment } from '@mui/material';
+import { DStack, DTextField, DTextFieldInfo, DDateTimePicker } from '../config/defaults';
 
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -10,29 +9,16 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { ethers } from 'ethers';
 
 import { Web3Context } from './Web3Connector';
-import { WalletContext } from './WalletConnector';
+import { TokenContext, WalletContext } from './WalletConnector';
 
-const PLATFORMS_TO_ID = {
-  Twitter: 0,
-  Instagram: 1,
-};
+import { PLATFORMS_TO_ID, ID_TO_PLATFORMS, oneWeek, DURATION_CHOICES } from '../config/config';
+import { copyAddKeyValue } from '../config/utils';
 
-const ID_TO_PLATFORMS = {
-  0: 'Twitter',
-  1: 'Instagram',
-};
-
-const oneWeek = 7 * 24 * 60 * 60 * 1000;
-
-const DURATION_CHOICES = {
-  None: 0,
-  'One Day': 1 * 24 * 60 * 60 * 1000,
-  'Three Days': 3 * 24 * 60 * 60 * 1000,
-  'One Week': 1 * 7 * 24 * 60 * 60 * 1000,
-  'Two Weeks': 2 * 7 * 24 * 60 * 60 * 1000,
-};
+// ================== Contract Infos ====================
 
 export const ContractVitals = () => {
+  console.log('rendering', 'vitals');
+
   const [contractOwner, setContractOwner] = useState('');
   const [contractBalance, setContractBalance] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
@@ -40,12 +26,10 @@ export const ContractVitals = () => {
   const { web3Provider, contract } = useContext(Web3Context);
 
   const handleTxError = (e) => {
-    console.log(e);
+    console.error(e);
   };
 
   useMemo(() => {
-    console.log('rendering', 'vitals');
-
     contract.owner().then(setContractOwner).catch(handleTxError);
     contract.taskCount().then(setTaskCount).catch(handleTxError);
     web3Provider.getBalance(contract.address).then(setContractBalance).catch(handleTxError);
@@ -68,7 +52,10 @@ export const ContractVitals = () => {
   );
 };
 
+// ================== Open Tasks ====================
+
 export const OpenTasks = () => {
+  console.log('rendering', 'Open');
   const [taskCount, setTaskCount] = useState(0);
   const [tasks, setTasks] = useState({});
 
@@ -83,7 +70,6 @@ export const OpenTasks = () => {
   };
 
   useMemo(() => {
-    console.log('rendering', 'Open');
     updateTaskCount();
     contract.on(contract.filters.TaskCreated(), updateTaskCount);
   }, []);
@@ -93,9 +79,8 @@ export const OpenTasks = () => {
       contract
         .getTask(id)
         .then((task) => {
-          setTasks((tasks) => {
-            var taskState = { ...tasks };
-            taskState[id] = {
+          setTasks((tasks) =>
+            copyAddKeyValue(tasks, id, {
               status: task[0],
               platform: task[1],
               sponsorAddress: task[2],
@@ -107,9 +92,8 @@ export const OpenTasks = () => {
               endDate: task[8],
               minDuration: task[9],
               hash: task[10],
-            };
-            return taskState;
-          });
+            })
+          );
         })
         .catch(handleTxError);
     }
@@ -141,41 +125,44 @@ export const OpenTasks = () => {
   );
 };
 
+// ================== Create Task ====================
+
 export const CreateTask = () => {
-  useMemo(() => {
-    console.log('rendering', 'Create');
-  }, []);
+  console.log('rendering', 'Create');
   const [platform, setPlatform] = useState('0');
   const [promoterAddress, setPromoterAddress] = useState('');
-  const [tokenAddress, setTokenAddress] = useState('');
+  const [promoterUserId, setPromoterUserId] = useState('');
+  // const [tokenAddress, setTokenAddress] = useState('');
+  const [tokenSymbol, setTokenSymbol] = useState('MOCK');
   const [tokenAmount, setTokenAmount] = useState('0');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date().getTime() + oneWeek);
-  const [minDuration, setMinDuration] = useState(oneWeek);
+  const [minDuration, setMinDuration] = useState(0);
   const [message, setMessage] = useState('');
   const [hash, setHash] = useState('');
 
   const [touched, setTouched] = useState({});
   const isTouched = (key) => Object.keys(touched).includes(key);
 
-  const { signContract } = useContext(WalletContext);
-  const { handleTxError, handleTxWrapper } = useContext(Web3Context);
+  const { tokenWhitelist, tokenApprovals, tokenBalances, updateApprovals } = useContext(TokenContext);
+  const { walletAddress, signContract, walletProvider } = useContext(WalletContext);
+  const { handleTxError, handleTx, contract } = useContext(Web3Context);
 
-  const handleTx = handleTxWrapper(() => {});
+  // const handleTx = handleTxWrapper(() => {});
+  const token = tokenWhitelist[tokenSymbol];
 
   const updateMessage = (msg) => {
     setMessage(msg);
-    console.log('setting msg', msg);
-    let _hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [message]));
-    console.log('hash', _hash);
+    let _hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [msg.trim()]));
     setHash(_hash);
+    // console.log('setting msg', msg, '\n', _hash);
   };
 
-  const isValidTokenAmount = () => {
-    const amt = parseInt(tokenAmount);
-    if (isNaN(amt)) return false;
-    if (amt <= 0) return false;
-    return true;
+  // parsing functions
+
+  const isPositiveInt = (amt) => {
+    const parsedAmt = parseInt(amt);
+    return parsedAmt.toString() == amt && !isNaN(parsedAmt) && parsedAmt > 0;
   };
 
   const isValidAddress = (address) => {
@@ -187,8 +174,13 @@ export const CreateTask = () => {
     }
   };
 
-  const isValidMessage = () => {
-    return message !== '';
+  // const checkIsTokenApproved = useEffect(() => {
+  //   if (isValidAddress(tokenAddress)) {
+  //   }
+  // });
+
+  const isValidMessage = (msg) => {
+    return msg !== '';
   };
 
   const isValidStartDate = () => {
@@ -199,15 +191,30 @@ export const CreateTask = () => {
     return startDate <= endDate;
   };
 
+  const isValidTokenAmount = () => {
+    return tokenAmount < tokenBalances[tokenSymbol];
+  };
+
   const isValidTask = () => {
     return (
       isValidAddress(promoterAddress) &&
-      isValidAddress(tokenAddress) &&
-      isValidTokenAmount() &&
-      isValidStartDate() &&
+      isPositiveInt(promoterUserId) &&
+      // isValidAddress(tokenAddress) &&
+      isPositiveInt(tokenAmount) &&
+      // isValidStartDate() &&
       isValidEndDate() &&
-      isValidMessage()
+      isValidMessage(message)
     );
+  };
+
+  const approveToken = () => {
+    console.log('sending approve tx');
+    token.contract
+      .connect(walletProvider.getSigner())
+      .approve(contract.address, ethers.constants.MaxUint256)
+      .then(handleTx)
+      .then(updateApprovals)
+      .catch(handleTxError);
   };
 
   const createTask = () => {
@@ -215,11 +222,12 @@ export const CreateTask = () => {
     console.log({
       platform: platform,
       promoterAddress: promoterAddress,
-      tokenAddress: tokenAddress,
+      promoterUserId: promoterUserId,
+      tokenAddress: token.address,
       tokenAmount: tokenAmount,
-      startDate: startDate,
-      endDate: endDate,
-      minDuration: minDuration,
+      startDate: parseInt(startDate / 1000).toString(),
+      endDate: parseInt(endDate / 1000).toString(),
+      minDuration: parseInt(minDuration / 1000).toString(),
       hash: hash,
     });
 
@@ -227,11 +235,12 @@ export const CreateTask = () => {
       .createTask(
         platform,
         promoterAddress,
-        tokenAddress,
+        promoterUserId,
+        token.address,
         tokenAmount,
-        parseInt(startDate / 1000),
-        parseInt(endDate / 1000),
-        parseInt(minDuration / 1000),
+        parseInt(startDate / 1000).toString(),
+        parseInt(endDate / 1000).toString(),
+        parseInt(minDuration / 1000).toString(),
         hash
       )
       .then(handleTx)
@@ -259,28 +268,46 @@ export const CreateTask = () => {
         <DTextField
           label="Promoter Address"
           value={promoterAddress}
-          error={!isValidAddress(promoterAddress) && isTouched('promoterAddress')}
-          helperText={!isValidAddress(promoterAddress) && isTouched('promoterAddress') && 'Enter a valid address'}
+          error={isTouched('promoterAddress') && !isValidAddress(promoterAddress)}
+          helperText={isTouched('promoterAddress') && !isValidAddress(promoterAddress) && 'Enter a valid address'}
           onChange={({ target }) => {
             setTouched({ ...touched, promoterAddress: true });
             setPromoterAddress(target.value);
           }}
         />
         <DTextField
-          label="Token Address"
-          value={tokenAddress}
-          error={!isValidAddress(tokenAddress) && isTouched('tokenAddress')}
-          helperText={!isValidAddress(tokenAddress) && isTouched('tokenAddress') && 'Enter a valid address'}
+          label="Promoter User Id"
+          value={promoterUserId}
+          error={isTouched('promoterUserId') && !isPositiveInt(promoterUserId)}
+          helperText={isTouched('promoterUserId') && !isPositiveInt(promoterUserId) && 'Enter a valid User Id'}
           onChange={({ target }) => {
-            setTouched({ ...touched, tokenAddress: true });
-            setTokenAddress(target.value);
+            setTouched({ ...touched, promoterUserId: true });
+            setPromoterUserId(target.value);
           }}
         />
         <DTextField
+          select
+          label="Token"
+          value={tokenSymbol}
+          onChange={({ target }) => {
+            setTokenSymbol(target.value);
+          }}
+        >
+          {Object.entries(tokenWhitelist).map(([symbol, _token]) => (
+            <MenuItem key={symbol} value={symbol}>
+              {symbol + ' (balance: ' + tokenBalances[symbol] + ')'}
+            </MenuItem>
+          ))}
+        </DTextField>
+        <DTextField
           label="Token Amount"
           value={tokenAmount}
-          error={!isValidTokenAmount() && isTouched('tokenAmount')}
-          helperText={!isValidTokenAmount() && isTouched('tokenAmount') && 'Enter a valid amount'}
+          error={isTouched('tokenAmount') && (!isPositiveInt(tokenAmount) || !isValidTokenAmount())}
+          helperText={
+            isTouched('tokenAmount') &&
+            ((!isPositiveInt(tokenAmount) && 'Enter a valid amount') ||
+              (!isValidTokenAmount() && 'Amount exceeds balance'))
+          }
           onChange={({ target }) => {
             setTouched({ ...touched, tokenAmount: true });
             setTokenAmount(target.value);
@@ -293,25 +320,23 @@ export const CreateTask = () => {
             setTouched({ ...touched, startDate: true });
             setStartDate(newDate);
           }}
-          error={!isValidStartDate() && isTouched('startDate')}
-          helperText={!isValidStartDate() && isTouched('startDate') && "Start date can't lie in the past"}
+          error={isTouched('startDate') && !isValidStartDate()}
+          helperText={isTouched('startDate') && !isValidStartDate() && 'Start date is in the past'}
         />
         <DDateTimePicker
           label="Promotion End Date"
           value={endDate}
-          error={!isValidEndDate() && isTouched('endDate')}
-          helperText={!isValidAddress(tokenAddress) && isTouched('tokenAddress') && 'Enter a valid amount'}
           onChange={(newDate) => {
             setTouched({ ...touched, endDate: true });
             setEndDate(newDate);
           }}
-          error={!isValidEndDate() && isTouched('endDate')}
-          helperText={!isValidEndDate() && isTouched('endDate') && 'End date must be after start date'}
+          error={isTouched('endDate') && !isValidEndDate()}
+          helperText={isTouched('endDate') && !isValidEndDate() && 'End date must be after start date'}
         />
         <DTextField
           select
           label="Minimum Persistence Duration"
-          value={platform}
+          value={minDuration}
           onChange={({ target }) => {
             setMinDuration(target.value);
           }}
@@ -326,18 +351,79 @@ export const CreateTask = () => {
           multiline
           label="Exact Message"
           value={message}
-          error={!isValidMessage() && isTouched('message')}
-          helperText={!isValidMessage() && isTouched('message') && 'Enter a valid message'}
+          error={isTouched('message') && !isValidMessage(message)}
+          helperText={isTouched('message') && !isValidMessage(message) && 'Enter a valid message'}
           onChange={({ target }) => {
             setTouched({ ...touched, message: true });
             updateMessage(target.value);
           }}
         />
         <DTextFieldInfo label="Message Hash" value={hash} disabled={true} />
-        <Button disabled={!isValidTask()} variant="contained" onClick={createTask}>
-          Create
-        </Button>
+        <Stack>
+          {!tokenApprovals[tokenSymbol] && (
+            <Button variant="contained" onClick={approveToken}>
+              Approve Token
+            </Button>
+          )}
+
+          <Button disabled={!isValidTask() || !tokenApprovals[tokenSymbol]} variant="contained" onClick={createTask}>
+            Create
+          </Button>
+        </Stack>
       </DStack>
     </LocalizationProvider>
+  );
+};
+
+// ================== Dev Tools ====================
+
+const mockMintInterface = [
+  'function mint(uint256 amount) public',
+  'function mintFor(address for, uint256 amount) public',
+];
+
+export const DevTools = () => {
+  const [tokenSymbol, setTokenSymbol] = useState('MOCK');
+
+  const { tokenWhitelist, tokenBalances, updateBalances } = useContext(TokenContext);
+  const { walletAddress, walletProvider } = useContext(WalletContext);
+  const { handleTxError, handleTx } = useContext(Web3Context);
+  console.log(useContext(TokenContext));
+
+  const token = tokenWhitelist[tokenSymbol];
+
+  const mint = () => {
+    const contract = new ethers.Contract(token.address, mockMintInterface);
+    contract
+      .connect(walletProvider.getSigner())
+      .mint('1000')
+      .then(handleTx)
+      .then(() => {
+        updateBalances(tokenSymbol);
+      })
+      .catch(handleTxError);
+  };
+
+  return (
+    <DStack>
+      <h2>// Dev Tools</h2>
+      <DTextField
+        select
+        label="Token"
+        value={tokenSymbol}
+        onChange={({ target }) => {
+          setTokenSymbol(target.value);
+        }}
+      >
+        {Object.entries(tokenWhitelist).map(([symbol, _token]) => (
+          <MenuItem key={symbol} value={symbol}>
+            {symbol + ' (balance: ' + tokenBalances[symbol] + ')'}
+          </MenuItem>
+        ))}
+      </DTextField>
+      <Button variant="contained" onClick={mint}>
+        Mint 1000
+      </Button>
+    </DStack>
   );
 };

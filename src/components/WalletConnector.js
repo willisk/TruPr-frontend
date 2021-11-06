@@ -7,6 +7,9 @@ import { ethers } from 'ethers';
 
 import { Web3Context } from './Web3Connector';
 
+import { getErc20TokenWhitelist } from '../config/config';
+import { copyAddKeyValue } from '../config/utils';
+
 function getProvider() {
   if (window.ethereum) {
     return new ethers.providers.Web3Provider(window.ethereum);
@@ -16,6 +19,7 @@ function getProvider() {
 export const WalletContext = createContext({
   network: undefined,
   walletAddress: '',
+  walletProvider: undefined,
   isConnected: undefined,
   signContract: undefined,
   requestAccount: undefined,
@@ -35,7 +39,7 @@ export const WalletConnectButton = () => {
   );
 };
 
-export function WalletProvider({ children }) {
+export function WalletConnector({ children }) {
   const { contract, isValidChainId } = useContext(Web3Context);
 
   const [network, setNetwork] = useState(null);
@@ -108,6 +112,7 @@ export function WalletProvider({ children }) {
   const context = {
     network: network,
     walletAddress: address,
+    walletProvider: provider,
     isConnected: isConnected,
     signContract: signContract,
     requestAccount: requestAccount,
@@ -127,4 +132,56 @@ export function WalletProvider({ children }) {
       {children}
     </WalletContext.Provider>
   );
+}
+
+export const TokenContext = createContext({});
+
+export function TokenConnector({ children }) {
+  const [tokenApprovals, setTokenApprovals] = useState({});
+  const [tokenBalances, setTokenBalances] = useState({});
+
+  const { contract, networkName, web3Provider } = useContext(Web3Context);
+  const { walletAddress } = useContext(WalletContext);
+
+  const tokenWhitelist = getErc20TokenWhitelist(networkName, web3Provider);
+
+  const updateApprovals = (_symbol) => {
+    if (!walletAddress) return;
+    Object.entries(tokenWhitelist).forEach(([symbol, token]) => {
+      //optional filter
+      if (!_symbol || _symbol === symbol) {
+        token.contract.allowance(walletAddress, contract.address).then((allowance) => {
+          const approved = allowance.toString() === ethers.constants.MaxUint256.toString(); // XXX: why doesn't normal compare work
+          setTokenApprovals((approvals) => copyAddKeyValue(approvals, symbol, approved));
+        });
+      }
+    });
+  };
+
+  const updateBalances = (_symbol) => {
+    console.log('called update');
+    if (!walletAddress) return;
+    Object.entries(tokenWhitelist).forEach(([symbol, token]) => {
+      if (!_symbol || _symbol === symbol) {
+        token.contract.balanceOf(walletAddress).then((balance) => {
+          setTokenBalances((balances) => copyAddKeyValue(balances, symbol, balance));
+        });
+      }
+    });
+  };
+
+  useMemo(() => {
+    updateApprovals();
+    updateBalances();
+  }, []);
+
+  const context = {
+    tokenWhitelist: tokenWhitelist,
+    tokenApprovals: tokenApprovals,
+    tokenBalances: tokenBalances,
+    updateApprovals: updateApprovals,
+    updateBalances: updateBalances,
+  };
+
+  return <TokenContext.Provider value={context}>{children}</TokenContext.Provider>;
 }

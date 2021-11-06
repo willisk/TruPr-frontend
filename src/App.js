@@ -1,7 +1,7 @@
 import './App.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { WalletProvider } from './components/WalletConnector';
-import { Web3Provider } from './components/Web3Connector';
+import { WalletConnector, TokenConnector } from './components/WalletConnector';
+import { Web3Connector } from './components/Web3Connector';
 import Home from './components/Home';
 
 const theme = createTheme({
@@ -18,11 +18,13 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Web3Provider>
-        <WalletProvider>
-          <Home />
-        </WalletProvider>
-      </Web3Provider>
+      <Web3Connector>
+        <WalletConnector>
+          <TokenConnector>
+            <Home />
+          </TokenConnector>
+        </WalletConnector>
+      </Web3Connector>
     </ThemeProvider>
   );
 }

@@ -1,28 +1,27 @@
 import { ethers } from 'ethers';
 import { useState, createContext, useContext } from 'react';
-import { Snackbar, Link } from '@mui/material';
+import { Snackbar, Button, Link } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 
 import { WalletContext } from './WalletConnector';
-import { getTransactionLink } from '../utils/ChainIds';
+import { getNetworkName, getTransactionLink } from '../config/chainIds';
 
-const contractABI = require('../Escrow.json').abi;
-const validChainIds = JSON.parse(process.env.REACT_APP_VALID_CHAIN_IDS);
+import { A_VALID_NETWORK, VALID_CHAIN_IDS, getContractAddress } from '../config/config';
 
-const contractAddressRinkeby = process.env.REACT_APP_CONTRACT_ADDRESS_RINKEBY;
+const { abi: contractABI } = require('../contracts/PrivateEscrow.json');
+
 const web3ProviderRinkeby = new ethers.providers.AlchemyWebSocketProvider(
   'rinkeby',
   process.env.REACT_APP_ALCHEMY_KEY_RINKEBY
 );
-const contractAddressKovan = process.env.REACT_APP_CONTRACT_ADDRESS_KOVAN;
 const web3ProviderKovan = new ethers.providers.AlchemyWebSocketProvider(
   'kovan',
   process.env.REACT_APP_ALCHEMY_KEY_KOVAN
 );
 
-const getContractAddressAndProvider = (chainId) => {
-  if (chainId === 4) return [contractAddressRinkeby, web3ProviderRinkeby];
-  if (chainId === 42) return [contractAddressKovan, web3ProviderKovan];
+const getProvider = (networkName) => {
+  if (networkName === 'rinkeby') return web3ProviderRinkeby;
+  if (networkName === 'kovan') return web3ProviderKovan;
 };
 
 export const TransactionLink = ({ txHash, message }) => {
@@ -34,8 +33,17 @@ export const TransactionLink = ({ txHash, message }) => {
   );
 };
 
-const parseError = (e) => {
-  // console.error(e);
+export const NetworkButton = () => {
+  const { networkName } = useContext(Web3Context);
+  return (
+    <Button className="network-button" variant="outlined">
+      {networkName}
+    </Button>
+  );
+};
+
+const parseTxError = (e) => {
+  // console.error('error', e);
   try {
     return JSON.parse(/\(error=(.+), method.+\)/g.exec(e.message)[1]).message;
   } catch (error) {
@@ -43,17 +51,10 @@ const parseError = (e) => {
   }
 };
 
-export const Web3Context = createContext({
-  contract: undefined,
-  web3Provider: undefined,
-  isValidChainId: undefined,
-  setChainId: undefined,
-  handleTxWrapper: undefined,
-  handleTxError: undefined,
-});
+export const Web3Context = createContext({});
 
-export const Web3Provider = ({ children }) => {
-  const [chainId, setChainId] = useState(validChainIds[0]);
+export const Web3Connector = ({ children }) => {
+  const [chainId, setChainId] = useState(VALID_CHAIN_IDS[0]);
   const [alertState, setAlertState] = useState({
     open: false,
     message: '',
@@ -61,13 +62,13 @@ export const Web3Provider = ({ children }) => {
   });
 
   const network = ethers.providers.getNetwork(chainId);
-  const validNetwork = ethers.providers.getNetwork(validChainIds[0]);
+  const isValidChainId = VALID_CHAIN_IDS.includes(chainId);
 
-  const isValidChainId = validChainIds.includes(chainId);
+  const networkName = getNetworkName(chainId);
 
   // XXX: memoize this
-  const ret = getContractAddressAndProvider(chainId);
-  const [contractAddress, web3Provider] = getContractAddressAndProvider(chainId);
+  const contractAddress = getContractAddress(networkName);
+  const web3Provider = getProvider(networkName);
 
   const contract = new ethers.Contract(contractAddress, contractABI, web3Provider);
 
@@ -80,34 +81,34 @@ export const Web3Provider = ({ children }) => {
   const handleTxError = (e) => {
     setAlertState({
       open: true,
-      message: parseError(e),
+      message: parseTxError(e),
       severity: 'error',
     });
   };
 
-  const handleTxWrapper = (callback) => {
-    return async (tx) => {
-      setAlertState({
-        open: true,
-        message: <TransactionLink txHash={tx.hash} message="Processing Transaction" />,
-        severity: 'info',
-      });
-      const { transactionHash } = await tx.wait();
-      setAlertState({
-        open: true,
-        message: <TransactionLink txHash={transactionHash} message="Transaction successful!" />,
-        severity: 'success',
-      });
-      callback();
-    };
-  };
+  // const handleTx = async (tx) => {
+  async function handleTx(tx) {
+    setAlertState({
+      open: true,
+      message: <TransactionLink txHash={tx.hash} message="Processing Transaction" />,
+      severity: 'info',
+    });
+    const { transactionHash } = await tx.wait();
+    setAlertState({
+      open: true,
+      message: <TransactionLink txHash={transactionHash} message="Transaction successful!" />,
+      severity: 'success',
+    });
+    return tx;
+  }
 
   const context = {
     contract: contract,
     web3Provider: web3Provider,
+    networkName: networkName,
     isValidChainId: isValidChainId,
     setChainId: setChainId,
-    handleTxWrapper: handleTxWrapper,
+    handleTx: handleTx,
     handleTxError: handleTxError,
   };
 
@@ -115,7 +116,7 @@ export const Web3Provider = ({ children }) => {
     <Web3Context.Provider value={context}>
       {!isValidChainId && (
         <div className="invalid-network-banner">
-          Warning: connected to {network?.name} network. Please switch to {validNetwork?.name} network.
+          Warning: connected to {network?.name} network. Please switch to {A_VALID_NETWORK.name} network.
         </div>
       )}
       {children}
