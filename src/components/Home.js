@@ -19,7 +19,7 @@ import { NetworkButton } from './Web3Connector';
 const Socials = () => (
   <div className="socials">
     <Button variant="text" href="" target="_blank" rel="noreferrer" style={{ minWidth: 45 }}>
-      <TwitterLogo style={{ height: 24, width: 20 }} />
+      <TwitterLogo style={{ height: 24, width: 20, fill: 'red' }} />
     </Button>
     <Button variant="text" href="" target="_blank" rel="noreferrer" style={{ minWidth: 45 }}>
       <DiscordLogo style={{ height: 24, width: 20 }} />
@@ -59,30 +59,41 @@ function Home({ classes }) {
 
   return (
     <div className="app">
-      <div className="home">
-        {/* XXX: Grid container is not calculating height accurately, border is misplaced */}
-        <Grid container className="header" alignItems="center" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Grid item sx={{ flexGrow: 1 }}>
-            <Tabs value={tab} onChange={handleChange} aria-label="basic tabs example">
-              <Tab label="Dashboard" {...a11yProps(0)} />
-              <Tab label="Open Tasks" {...a11yProps(1)} />
-              <Tab label="Create Task" {...a11yProps(2)} />
-            </Tabs>
-          </Grid>
-          <NetworkButton />
-          <WalletConnectButton />
+      <Grid
+        container
+        className="header"
+        alignItems="center"
+        sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.default' }}
+      >
+        <Grid item sx={{ flexGrow: 1 }}>
+          <Tabs value={tab} onChange={handleChange} aria-label="basic tabs">
+            <Tab label="Dashboard" {...a11yProps(0)} />
+            <Tab label="Open Tasks" {...a11yProps(1)} />
+            <Tab label="Create Task" {...a11yProps(2)} />
+          </Tabs>
         </Grid>
-        <Box
-          component="main"
-          className="background"
-          sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, width: '100%' }}
-        >
-          {(tab === 0 && <PanelOne />) || (tab === 1 && <PanelTwo />) || (tab === 2 && <PanelThree />)}
-        </Box>
-        <Box className="footer" sx={{ flexGrow: 1, borderTop: 1, borderColor: 'divider' }}>
-          <Socials />
-        </Box>
-      </div>
+        <NetworkButton />
+        <WalletConnectButton />
+      </Grid>
+      <Box
+        component="main"
+        className="background"
+        sx={{
+          flexGrow: 1,
+          // bgcolor: 'background.default',
+          p: 3,
+          // width: '100%',
+        }}
+      >
+        {(tab === 0 && <PanelOne />) || (tab === 1 && <PanelTwo />) || (tab === 2 && <PanelThree />)}
+      </Box>
+      <Grid
+        container
+        className="footer"
+        sx={{ display: 'inline-block', borderTop: 1, borderColor: 'divider', bgcolor: 'background.default' }}
+      >
+        <Socials />
+      </Grid>
     </div>
   );
 }

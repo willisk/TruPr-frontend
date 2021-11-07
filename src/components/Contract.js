@@ -11,13 +11,13 @@ import { ethers } from 'ethers';
 import { Web3Context } from './Web3Connector';
 import { TokenContext, WalletContext } from './WalletConnector';
 
-import { PLATFORMS_TO_ID, ID_TO_PLATFORMS, oneWeek, DURATION_CHOICES } from '../config/config';
-import { copyAddKeyValue } from '../config/utils';
+import { PLATFORM_TO_ID, ID_TO_PLATFORM, ID_TO_STATUS, oneWeek, DURATION_CHOICES, parseTask } from '../config/config';
+import { formatDuration } from '../config/utils';
 
 // ================== Contract Infos ====================
 
 export const ContractVitals = () => {
-  console.log('rendering', 'vitals');
+  // console.log('rendering', 'vitals');
 
   const [contractOwner, setContractOwner] = useState('');
   const [contractBalance, setContractBalance] = useState(0);
@@ -55,18 +55,15 @@ export const ContractVitals = () => {
 // ================== Open Tasks ====================
 
 export const OpenTasks = () => {
-  console.log('rendering', 'Open');
+  // console.log('rendering', 'Open');
   const [taskCount, setTaskCount] = useState(0);
   const [tasks, setTasks] = useState({});
 
   const { contract } = useContext(Web3Context);
-
-  const handleTxError = (e) => {
-    console.error(e);
-  };
+  const { tokenWhitelistAddressToSymbol } = useContext(TokenContext);
 
   const updateTaskCount = () => {
-    contract.taskCount().then(setTaskCount).catch(handleTxError);
+    contract.taskCount().then(setTaskCount).catch(console.error);
   };
 
   useMemo(() => {
@@ -75,44 +72,27 @@ export const OpenTasks = () => {
   }, []);
 
   useEffect(() => {
-    for (let id = 0; id < taskCount; id++) {
-      contract
-        .getTask(id)
-        .then((task) => {
-          setTasks((tasks) =>
-            copyAddKeyValue(tasks, id, {
-              status: task[0],
-              platform: task[1],
-              sponsorAddress: task[2],
-              promoterAddress: task[3],
-              promoterUserId: task[4],
-              tokenAddress: task[5],
-              tokenAmount: task[6],
-              startDate: task[7],
-              endDate: task[8],
-              minDuration: task[9],
-              hash: task[10],
-            })
-          );
-        })
-        .catch(handleTxError);
-    }
+    contract
+      .getAllTasks()
+      .then((tasks) => tasks.map(parseTask))
+      .then(setTasks)
+      .catch(console.error);
   }, [taskCount]);
 
   const tasksList = () =>
     Object.entries(tasks).map(([id, task]) => (
       <DStack key={id}>
         <h3>Task {id}</h3>
-        <DTextFieldInfo label="Status" value={task.status} />
-        <DTextFieldInfo label="Platform" value={task.platform} />
+        <DTextFieldInfo label="Status" value={ID_TO_STATUS[task.status]} />
+        <DTextFieldInfo label="Platform" value={ID_TO_PLATFORM[task.platform]} />
         <DTextFieldInfo label="Sponsor Address" value={task.sponsorAddress} />
         <DTextFieldInfo label="Promoter Address" value={task.promoterAddress} />
         <DTextFieldInfo label="Promoter User Id" value={task.promoterUserId} />
-        <DTextFieldInfo label="Token Address" value={task.tokenAddress} />
+        <DTextFieldInfo label="Token" value={tokenWhitelistAddressToSymbol[task.tokenAddress]} />
         <DTextFieldInfo label="Token Amount" value={task.tokenAmount} />
-        <DTextFieldInfo label="Start Date" value={task.startDate} />
-        <DTextFieldInfo label="End Date" value={task.endDate} />
-        <DTextFieldInfo label="Min Duration" value={task.minDuration} />
+        <DTextFieldInfo label="Start Date" value={new Date(task.startDate * 1000).toString()} />
+        <DTextFieldInfo label="End Date" value={new Date(task.endDate * 1000).toString()} />
+        <DTextFieldInfo label="Min Duration" value={formatDuration(task.minDuration)} />
         <DTextFieldInfo label="Hash" value={task.hash} />
       </DStack>
     ));
@@ -128,7 +108,7 @@ export const OpenTasks = () => {
 // ================== Create Task ====================
 
 export const CreateTask = () => {
-  console.log('rendering', 'Create');
+  // console.log('rendering', 'Create')
   const [platform, setPlatform] = useState('0');
   const [promoterAddress, setPromoterAddress] = useState('');
   const [promoterUserId, setPromoterUserId] = useState('');
@@ -136,7 +116,7 @@ export const CreateTask = () => {
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
   const [tokenAmount, setTokenAmount] = useState('0');
   const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date().getTime() + oneWeek);
+  const [endDate, setEndDate] = useState(new Date().getTime() + DURATION_CHOICES['One Week'] * 1000);
   const [minDuration, setMinDuration] = useState(0);
   const [message, setMessage] = useState('');
   const [hash, setHash] = useState('');
@@ -213,7 +193,7 @@ export const CreateTask = () => {
       .connect(walletProvider.getSigner())
       .approve(contract.address, ethers.constants.MaxUint256)
       .then(handleTx)
-      .then(updateApprovals)
+      .then(() => updateApprovals(tokenSymbol))
       .catch(handleTxError);
   };
 
@@ -227,7 +207,7 @@ export const CreateTask = () => {
       tokenAmount: tokenAmount,
       startDate: parseInt(startDate / 1000).toString(),
       endDate: parseInt(endDate / 1000).toString(),
-      minDuration: parseInt(minDuration / 1000).toString(),
+      minDuration: minDuration.toString(),
       hash: hash,
     });
 
@@ -240,7 +220,7 @@ export const CreateTask = () => {
         tokenAmount,
         parseInt(startDate / 1000).toString(),
         parseInt(endDate / 1000).toString(),
-        parseInt(minDuration / 1000).toString(),
+        minDuration.toString(),
         hash
       )
       .then(handleTx)
@@ -259,7 +239,7 @@ export const CreateTask = () => {
             setPlatform(target.value);
           }}
         >
-          {Object.entries(PLATFORMS_TO_ID).map(([platformName, platformId]) => (
+          {Object.entries(PLATFORM_TO_ID).map(([platformName, platformId]) => (
             <MenuItem key={platformId} value={platformId}>
               {platformName}
             </MenuItem>
@@ -397,9 +377,7 @@ export const DevTools = () => {
       .connect(walletProvider.getSigner())
       .mint('1000')
       .then(handleTx)
-      .then(() => {
-        updateBalances(tokenSymbol);
-      })
+      .then(() => updateBalances(tokenSymbol))
       .catch(handleTxError);
   };
 

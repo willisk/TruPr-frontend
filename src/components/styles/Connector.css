@@ -1,21 +1,13 @@
-.header {
-  text-align: center;
-}
-
 .invalid-network-banner {
   color: black;
-  background-color: #f57012;
+  background-color: #e99c10;
   padding: 0.5em 1em;
   text-align: center;
 }
+
 .invalid-network-banner:hover {
   cursor: default;
 }
-
-/* .MuiDialogContent-root .MuiButton-label,
-.MuiTypography-h6 {
-  color: #fff !important;
-} */
 
 .wallet-info .balance span {
   display: none;
@@ -30,7 +22,7 @@
   box-shadow: 5px 1000px 4px #fff inset;
   background-color: #fff;
   padding: 2px 10px !important; */
-  /* margin: 1px !important; */
+  margin: 0 10px !important;
   text-transform: none !important;
   float: right;
 }

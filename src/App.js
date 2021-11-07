@@ -6,12 +6,14 @@ import Home from './components/Home';
 
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#0f0a3a',
+      main: '#dfe1ef',
     },
-    secondary: {
-      main: '#481c07',
-    },
+    // secondary: {
+    //   // main: '#481c07',
+    //   main: '#fff',
+    // },
   },
 });
 

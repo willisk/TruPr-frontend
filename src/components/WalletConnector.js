@@ -8,7 +8,7 @@ import { ethers } from 'ethers';
 import { Web3Context } from './Web3Connector';
 import { getNetworkName, getTransactionLink } from '../config/chainIds';
 
-import { getErc20TokenWhitelist } from '../config/config';
+import { getErc20TokenWhitelist, getWhitelistAddressToSymbol } from '../config/config';
 import { copyAddKeyValue } from '../config/utils';
 
 function getProvider() {
@@ -177,13 +177,15 @@ export function TokenConnector({ children }) {
   const [tokenApprovals, setTokenApprovals] = useState({});
   const [tokenBalances, setTokenBalances] = useState({});
 
-  const { contract, networkName, web3Provider, isValidChainId } = useContext(Web3Context);
+  const { contract, chainName, web3Provider, isValidChainId } = useContext(Web3Context);
   const { walletAddress } = useContext(WalletContext);
 
-  const tokenWhitelist = isValidChainId && getErc20TokenWhitelist(networkName, web3Provider);
+  const tokenWhitelist = isValidChainId && getErc20TokenWhitelist(chainName, web3Provider);
+  const tokenWhitelistAddressToSymbol = isValidChainId && getWhitelistAddressToSymbol(chainName);
 
   const updateApprovals = useCallback(
     (_symbol) => {
+      console.log('calling updateApprovals');
       if (!walletAddress) return;
       Object.entries(tokenWhitelist).forEach(([symbol, token]) => {
         //optional filter
@@ -221,6 +223,7 @@ export function TokenConnector({ children }) {
 
   const context = {
     tokenWhitelist: tokenWhitelist,
+    tokenWhitelistAddressToSymbol: tokenWhitelistAddressToSymbol,
     tokenApprovals: tokenApprovals,
     tokenBalances: tokenBalances,
     updateApprovals: updateApprovals,
