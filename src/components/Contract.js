@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMemo, useEffect, useState, useContext } from 'react';
-import { Stack, MenuItem, Button, InputAdornment } from '@mui/material';
+import { Stack, MenuItem, Button, InputAdornment, LinearProgress, Chip } from '@mui/material';
 import { DStack, DTextField, DTextFieldInfo, DDateTimePicker } from '../config/defaults';
 
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
@@ -79,17 +79,38 @@ export const OpenTasks = () => {
       .catch(console.error);
   }, [taskCount]);
 
+
+  function dateDiffInDays(a, b) {
+    // Discard the time and time-zone information.
+    const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+    const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+  
+    return Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
+  }
+
   const tasksList = () =>
     Object.entries(tasks).map(([id, task]) => (
       <DStack key={id}>
-        <h3>Task {id}</h3>
+        <h3 style={{textAlign: 'left', marginTop: '0'}}>Task {id}</h3>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <Chip label={ID_TO_STATUS[task.status]} color="primary" style={{maxWidth: '70px', width: '100%', background: 'rgb(102 187 106)'}} />
+          <span style={{marginTop: 'auto'}}>{dateDiffInDays(new Date(task.startDate * 1000), new Date(task.endDate * 1000))} days left</span>
+        </div>
+        <LinearProgress variant="determinate" value={Math.round(((new Date() - new Date(task.startDate * 1000)) / (new Date(task.endDate * 1000) - new Date(task.startDate * 1000))) * 100)} />
+        <div style={{display: 'flex', marginTop: '35px', justifyContent: 'space-evenly'}}>
+          <DTextFieldInfo style={{width: '50%'}} label="Token" value={tokenWhitelistAddressToSymbol[task.tokenAddress]} />
+          <DTextFieldInfo style={{width: '50%'}} label="Token Amount" value={task.tokenAmount} />
+        </div>
+        <div style={{textAlign: 'left'}}>
+        <h4>Description</h4>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.</p>
+        </div>
         <DTextFieldInfo label="Status" value={ID_TO_STATUS[task.status]} />
         <DTextFieldInfo label="Platform" value={ID_TO_PLATFORM[task.platform]} />
         <DTextFieldInfo label="Sponsor Address" value={task.sponsorAddress} />
         <DTextFieldInfo label="Promoter Address" value={task.promoterAddress} />
         <DTextFieldInfo label="Promoter User Id" value={task.promoterUserId} />
-        <DTextFieldInfo label="Token" value={tokenWhitelistAddressToSymbol[task.tokenAddress]} />
-        <DTextFieldInfo label="Token Amount" value={task.tokenAmount} />
         <DTextFieldInfo label="Start Date" value={new Date(task.startDate * 1000).toString()} />
         <DTextFieldInfo label="End Date" value={new Date(task.endDate * 1000).toString()} />
         <DTextFieldInfo label="Min Duration" value={formatDuration(task.minDuration)} />
