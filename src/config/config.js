@@ -6,9 +6,9 @@ const { abi: ERC20ABI } = require('../contracts/ERC20.json');
 // export const VALID_CHAIN_IDS = ['42', '4'];
 export const VALID_CHAIN_IDS = ['42'];
 
-const contractAddressKovan = '0xD4d728A30D2fd80De1eD4b5e743d1Da3d4C85fd3';
-const mockToken1Kovan = '0x1225963012F98CB1bC938B6B194cC09498C4a4aA';
-const mockToken2Kovan = '0xAB2A3c84dc7Be6fdD68A783e528dEf7A0Fc6F4C9';
+const contractAddressKovan = '0x0ACd7d1e59e9c57bAd5f095AB475f342f784b1E0';
+const mockToken1Kovan = '0x3407064ee2Cf92754B4273bF576Ac61c7d21B47D';
+const mockToken2Kovan = '0x08DEb34ff567021E037ed511235D6F4e3137f8AB';
 
 const contractAddress = {
   rinkeby: '0xD22460D669B37b90fB5b1bC1855b2E43084CFb3D',

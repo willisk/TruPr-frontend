@@ -103,6 +103,7 @@ export const OpenTasks = () => {
             <h3 style={{ textAlign: 'left', marginTop: '0' }}>
               <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>Task {id}</span>{' '}
               <span style={{ position: 'absolute', right: '20px', top: '20px' }}>
+                {getIcon('Twitter')}
                 {/* {getIcon(ID_TO_PLATFORM[task.platform])} */}
               </span>
             </h3>
@@ -418,7 +419,7 @@ export const CreateTask = () => {
         />
         <DTextField
           select
-          label="Minimum Persistence Duration"
+          label="Vesting Term"
           value={minDuration}
           onChange={({ target }) => {
             setMinDuration(target.value);
