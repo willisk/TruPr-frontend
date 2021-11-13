@@ -215,14 +215,13 @@ export const CreateTask = () => {
   // console.log('rendering', 'Create')
   const [platform, setPlatform] = useState('0');
   const [promoter, setPromoterAddress] = useState('');
-  const [promoterUserId, setPromoterUserId] = useState('');
-  // const [tokenAddress, setTokenAddress] = useState('');
+  // const [promoterUserId, setPromoterUserId] = useState('');
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
   const [depositAmount, setDepositAmount] = useState('0');
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date().getTime() + DURATION_CHOICES['One Week'] * 1000);
-  const [minDuration, setMinDuration] = useState(0);
-  const [message, setMessage] = useState('');
+  const [startDate, setStartDate] = useState(parseInt(new Date().getTime() / 1000));
+  const [endDate, setEndDate] = useState(parseInt(new Date().getTime() / 1000) + DURATION_CHOICES['One Week']);
+  const [vestingTerm, setVestingTerm] = useState(0);
+  const [data, setMessage] = useState('');
   const [hash, setHash] = useState('');
 
   const [touched, setTouched] = useState({});
@@ -276,20 +275,22 @@ export const CreateTask = () => {
   };
 
   const isValidDepositAmount = () => {
-    return depositAmount < tokenBalances[tokenSymbol];
+    return parseInt(depositAmount) <= tokenBalances[tokenSymbol];
   };
 
   const isValidTask = () => {
     return (
       isValidAddress(promoter) &&
-      isPositiveInt(promoterUserId) &&
+      // isPositiveInt(promoterUserId) &&
       // isValidAddress(tokenAddress) &&
       isPositiveInt(depositAmount) &&
       // isValidStartDate() &&
-      isValidEndDate() &&
-      isValidMessage(message)
+      isValidEndDate()
+      // isValidMessage(data)
     );
   };
+
+  // const data =
 
   const approveToken = () => {
     console.log('sending approve tx');
@@ -304,28 +305,31 @@ export const CreateTask = () => {
   const createTask = () => {
     console.log('creating task');
     console.log({
-      platform: platform,
+      // platform: platform,
       promoter: promoter,
-      promoterUserId: promoterUserId,
+      // promoterUserId: promoterUserId,
       tokenAddress: token.address,
       depositAmount: depositAmount,
-      startDate: parseInt(startDate / 1000).toString(),
-      endDate: parseInt(endDate / 1000).toString(),
-      minDuration: minDuration.toString(),
+      startDate: startDate.toString(),
+      endDate: endDate.toString(),
+      vestingTerm: vestingTerm.toString(),
       hash: hash,
     });
 
     signContract
       .createTask(
-        platform,
+        // platform,
         promoter,
-        promoterUserId,
+        // promoterUserId,
         token.address,
         depositAmount,
-        parseInt(startDate / 1000).toString(),
-        parseInt(endDate / 1000).toString(),
-        minDuration.toString(),
-        hash
+        startDate.toString(),
+        endDate.toString(),
+        vestingTerm.toString(),
+        '0', // linear rate
+        [100], // final x-tick: normed to 100
+        [depositAmount],
+        data
       )
       .then(handleTx)
       .catch(handleTxError);
@@ -359,7 +363,7 @@ export const CreateTask = () => {
             setPromoterAddress(target.value);
           }}
         />
-        <DTextField
+        {/* <DTextField
           label="Promoter User Id"
           value={promoterUserId}
           error={isTouched('promoterUserId') && !isPositiveInt(promoterUserId)}
@@ -368,7 +372,7 @@ export const CreateTask = () => {
             setTouched({ ...touched, promoterUserId: true });
             setPromoterUserId(target.value);
           }}
-        />
+        /> */}
         <DTextField
           select
           label="Token"
@@ -402,7 +406,7 @@ export const CreateTask = () => {
           value={startDate}
           onChange={(newDate) => {
             setTouched({ ...touched, startDate: true });
-            setStartDate(newDate);
+            setStartDate(parseInt(newDate.getTime() / 1000));
           }}
           error={isTouched('startDate') && !isValidStartDate()}
           helperText={isTouched('startDate') && !isValidStartDate() && 'Start date is in the past'}
@@ -412,7 +416,7 @@ export const CreateTask = () => {
           value={endDate}
           onChange={(newDate) => {
             setTouched({ ...touched, endDate: true });
-            setEndDate(newDate);
+            setEndDate(parseInt(newDate.getTime() / 1000));
           }}
           error={isTouched('endDate') && !isValidEndDate()}
           helperText={isTouched('endDate') && !isValidEndDate() && 'End date must be after start date'}
@@ -420,9 +424,9 @@ export const CreateTask = () => {
         <DTextField
           select
           label="Vesting Term"
-          value={minDuration}
+          value={vestingTerm}
           onChange={({ target }) => {
-            setMinDuration(target.value);
+            setVestingTerm(target.value);
           }}
         >
           {Object.entries(DURATION_CHOICES).map(([choice, time]) => (
@@ -433,16 +437,16 @@ export const CreateTask = () => {
         </DTextField>
         <DTextField
           multiline
-          label="Exact Message"
-          value={message}
-          error={isTouched('message') && !isValidMessage(message)}
-          helperText={isTouched('message') && !isValidMessage(message) && 'Enter a valid message'}
+          label="Data"
+          value={data}
+          // error={isTouched('data') && !isValidMessage(data)}
+          // helperText={isTouched('data') && !isValidMessage(data) && 'Enter a valid message'}
           onChange={({ target }) => {
-            setTouched({ ...touched, message: true });
+            setTouched({ ...touched, data: true });
             updateMessage(target.value);
           }}
         />
-        <DTextFieldInfo label="Message Hash" value={hash} disabled={true} />
+        {/* <DTextFieldInfo label="Message Hash" value={hash} disabled={true} /> */}
         <Stack>
           {!tokenApprovals[tokenSymbol] && (
             <Button variant="contained" onClick={approveToken}>
