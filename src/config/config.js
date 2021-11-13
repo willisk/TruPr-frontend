@@ -6,17 +6,21 @@ const { abi: ERC20ABI } = require('../contracts/ERC20.json');
 // export const VALID_CHAIN_IDS = ['42', '4'];
 export const VALID_CHAIN_IDS = ['42'];
 
+const contractAddressKovan = '0xD4d728A30D2fd80De1eD4b5e743d1Da3d4C85fd3';
+const mockToken1Kovan = '0x1225963012F98CB1bC938B6B194cC09498C4a4aA';
+const mockToken2Kovan = '0xAB2A3c84dc7Be6fdD68A783e528dEf7A0Fc6F4C9';
+
 const contractAddress = {
   rinkeby: '0xD22460D669B37b90fB5b1bC1855b2E43084CFb3D',
-  kovan: '0xE9C0962E56b723C8DE5602b054aB5F1a6C1a57d7',
+  kovan: contractAddressKovan,
 };
 
 const whitelist = [
-  { address: { kovan: '0x83DB0478eCFd19713521DBB589227cb1E7F00699' }, name: 'MockToken', symbol: 'MOCK' },
+  { address: { kovan: mockToken1Kovan }, name: 'MockToken', symbol: 'MOCK' },
   {
-    address: { kovan: '0x2B9045Efa910eA2CF698B2DEE5EBE2Fb10DAD309' },
+    address: { kovan: mockToken2Kovan },
     name: 'BananaToken',
-    symbol: 'Banana',
+    symbol: 'BANANA',
   },
 ];
 
@@ -30,20 +34,6 @@ export const ID_TO_STATUS = {
   1: 'Open',
   2: 'Fulfilled',
 };
-
-export const parseTask = (taskArr) => ({
-  status: taskArr[0],
-  platform: taskArr[1],
-  sponsorAddress: taskArr[2],
-  promoterAddress: taskArr[3],
-  promoterUserId: taskArr[4],
-  tokenAddress: taskArr[5],
-  tokenAmount: taskArr[6],
-  startDate: taskArr[7],
-  endDate: taskArr[8],
-  minDuration: taskArr[9],
-  hash: taskArr[10],
-});
 
 export const ID_TO_PLATFORM = reverseLookup(PLATFORM_TO_ID);
 

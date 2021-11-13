@@ -17,15 +17,12 @@ import { ethers } from 'ethers';
 import { Web3Context } from './Web3Connector';
 import { TokenContext, WalletContext } from './WalletConnector';
 
-import { PLATFORM_TO_ID, ID_TO_PLATFORM, ID_TO_STATUS, oneWeek, DURATION_CHOICES, parseTask } from '../config/config';
-import { formatDuration } from '../config/utils';
+import { PLATFORM_TO_ID, ID_TO_PLATFORM, ID_TO_STATUS, oneWeek, DURATION_CHOICES } from '../config/config';
+import { formatDuration, getTaskState } from '../config/utils';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { Twitter } from '@mui/icons-material';
 
-const icons = {
-  Twitter: Twitter
-}
+import { getIcon, getProgressValue, dateDiffInDays, getReadableDate } from '../config/utils';
 
 // ================== Contract Infos ====================
 
@@ -73,6 +70,7 @@ export const OpenTasks = () => {
   const [tasks, setTasks] = useState({});
 
   const { contract } = useContext(Web3Context);
+  const { walletAddress, signContract, handleTx, handleTxError } = useContext(WalletContext);
   const { tokenWhitelistAddressToSymbol } = useContext(TokenContext);
 
   const updateTaskCount = () => {
@@ -85,112 +83,118 @@ export const OpenTasks = () => {
   }, []);
 
   useEffect(() => {
-    contract
-      .getAllTasks()
-      .then((tasks) => tasks.map(parseTask))
-      .then(setTasks)
-      .catch(console.error);
+    contract.getAllTasks().then(setTasks).catch(console.error);
   }, [taskCount]);
 
+  const now = new Date().getTime();
 
-  function dateDiffInDays(task) {
-    let prefix = ''
-    let suffix = ''
-    const a = new Date(task.startDate * 1000)
-    const b = new Date(task.endDate * 1000)
-    if (new Date() > b) {
-      return '-'
-    }
-
-    if (new Date() < a) {
-      prefix = 'Starts in '
-      suffix = ' days'
-    } else {
-      suffix = ' days left'
-    }
-    // Discard the time and time-zone information.
-    const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-    const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-  
-    const res = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24))
-    console.log('hrer', res)
-    return prefix + res + suffix
-  }
-
-  function getProgressValue (task) {
-    const val = Math.round(((new Date() - new Date(task.startDate * 1000)) / (new Date(task.endDate * 1000) - new Date(task.startDate * 1000))) * 100)
-    return val > 100 ? 100 : val
-  }
-
-  function getIcon (icon) {
-    const DynamicIcon = icons[icon]
-    let extra = {}
-    if (icon === 'Twitter') {
-      extra = {
-        padding: '8px',
-        borderRadius: '50%',
-        background: '#54b2f5',
-        color: 'white'
-      }
-    }
-    return <DynamicIcon style={{display: 'inline-block', verticalAlign: 'middle', ...extra}}/>
-  }
-
-  function getReadableDate (d) {
-    return d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear()
-  }
+  const fulfillTask = (id) => {
+    console.log(id);
+    signContract.fulfillTask(id).then(handleTx).then(updateTaskCount).catch(handleTxError);
+  };
 
   const tasksList = () =>
-    Object.entries(tasks).map(([id, task]) => (
-      <Grid item xs={12} md={6} lg={4}>
-        <DStack key={id} style={{position: 'relative'}}>
-          <h3 style={{textAlign: 'left', marginTop: '0'}}><span style={{display: 'inline-block', verticalAlign: 'middle'}}>Task {id}</span> <span style={{position: 'absolute', right: '20px', top: '20px'}}>{getIcon(ID_TO_PLATFORM[task.platform])}</span></h3>
-          <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <Chip label={getProgressValue(task) === 100 ? "Closed" : ID_TO_STATUS[task.status]} color={getProgressValue(task) === 100 ? "error" : "success"} style={{maxWidth: '70px', width: '100%'}} />
-            <span style={{marginTop: 'auto'}}>{dateDiffInDays(task)}</span>
-          </div>
-          <LinearProgress variant="determinate" value={getProgressValue(task)} />
-          <Typography variant="h4" style={{textAlign: "left", fontSize: '12px', marginTop: '30px', fontWeight: '400', color: 'rgba(255, 255, 255, 0.7)'}}>
-          Reward
-          </Typography>
-          <Typography variant="body1" style={{textAlign: "left", marginTop: '5px'}}>
-          {task.tokenAmount.toString()} {tokenWhitelistAddressToSymbol[task.tokenAddress].toString()}
-          </Typography>
-          <div style={{display: 'flex', marginTop: '35px', marginBottom: '20px', justifyContent: 'space-evenly'}}>
-            <DTextFieldInfo style={{width: '50%'}} label="Starts on" value={getReadableDate(new Date(task.startDate * 1000))} />
-            <DTextFieldInfo style={{width: '50%'}} label="Ends on" value={getReadableDate(new Date(task.endDate * 1000))} />
-          </div>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
+    Object.entries(tasks).map(([id, task]) => {
+      // console.log('id', id, task);
+      const isPublic = task.promoter == 0;
+      return (
+        <Grid item key={id} xs={12} md={6} lg={4}>
+          <DStack style={{ position: 'relative' }}>
+            <h3 style={{ textAlign: 'left', marginTop: '0' }}>
+              <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>Task {id}</span>{' '}
+              <span style={{ position: 'absolute', right: '20px', top: '20px' }}>
+                {/* {getIcon(ID_TO_PLATFORM[task.platform])} */}
+              </span>
+            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Chip
+                label={getTaskState(task)}
+                color={getProgressValue(task) === 100 ? 'error' : 'success'}
+                style={{ maxWidth: '70px', width: '100%' }}
+              />
+              <span style={{ marginTop: 'auto' }}>{dateDiffInDays(task)}</span>
+            </div>
+            <LinearProgress variant="determinate" value={getProgressValue(task)} />
+            <Typography
+              variant="h4"
+              style={{
+                textAlign: 'left',
+                fontSize: '12px',
+                marginTop: '30px',
+                fontWeight: '400',
+                color: 'rgba(255, 255, 255, 0.7)',
+              }}
             >
-              <Typography>Description</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <div style={{textAlign: 'left'}}>
-                <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.
-                </Typography>
-                <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.
-                </Typography>
-              </div>
-            </AccordionDetails>
-          </Accordion>
-          {/* <DTextFieldInfo label="Status" value={ID_TO_STATUS[task.status]} />
+              Reward
+            </Typography>
+            <Typography variant="body1" style={{ textAlign: 'left', marginTop: '5px' }}>
+              {task.depositAmount.toString()} {tokenWhitelistAddressToSymbol[task.erc20Token].toString()}
+            </Typography>
+            <div style={{ display: 'flex', marginTop: '35px', marginBottom: '20px', justifyContent: 'space-evenly' }}>
+              <DTextFieldInfo
+                style={{ width: '50%' }}
+                label="Starts on"
+                value={getReadableDate(new Date(task.startDate * 1000))}
+              />
+              <DTextFieldInfo
+                style={{ width: '50%' }}
+                label="Ends on"
+                value={getReadableDate(new Date(task.endDate * 1000))}
+              />
+            </div>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                <Typography>Description</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <div style={{ textAlign: 'left' }}>
+                  <Typography>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam
+                    bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus.
+                    Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis
+                    ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae
+                    dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam
+                    erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.
+                  </Typography>
+                  <Typography>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam
+                    bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus.
+                    Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis
+                    ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae
+                    dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam
+                    erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.
+                  </Typography>
+                </div>
+              </AccordionDetails>
+            </Accordion>
+            {/* <DTextFieldInfo label="Status" value={ID_TO_STATUS[task.status]} />
           <DTextFieldInfo label="Platform" value={ID_TO_PLATFORM[task.platform]} />
-          <DTextFieldInfo label="Sponsor Address" value={task.sponsorAddress} />
-          <DTextFieldInfo label="Promoter Address" value={task.promoterAddress} />
+          <DTextFieldInfo label="Sponsor Address" value={task.sponsor} />
+          <DTextFieldInfo label="Promoter Address" value={task.promoter} />
           <DTextFieldInfo label="Promoter User Id" value={task.promoterUserId} />
           <DTextFieldInfo label="Start Date" value={new Date(task.startDate * 1000).toString()} />
           <DTextFieldInfo label="End Date" value={new Date(task.endDate * 1000).toString()} />
           <DTextFieldInfo label="Min Duration" value={formatDuration(task.minDuration)} />
           <DTextFieldInfo label="Hash" value={task.hash} /> */}
-        </DStack>
-      </Grid>
-    ));
+            <Button
+              variant="contained"
+              onClick={() => fulfillTask(id, task)}
+              disabled={
+                !(
+                  task.startDate < now &&
+                  now < task.endDate &&
+                  task.promoter != 0 &&
+                  walletAddress === task.promoter &&
+                  task.status === 1
+                )
+              }
+            >
+              Fulfill Task
+            </Button>
+          </DStack>
+        </Grid>
+      );
+    });
 
   return (
     <div>
@@ -209,11 +213,11 @@ export const OpenTasks = () => {
 export const CreateTask = () => {
   // console.log('rendering', 'Create')
   const [platform, setPlatform] = useState('0');
-  const [promoterAddress, setPromoterAddress] = useState('');
+  const [promoter, setPromoterAddress] = useState('');
   const [promoterUserId, setPromoterUserId] = useState('');
   // const [tokenAddress, setTokenAddress] = useState('');
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
-  const [tokenAmount, setTokenAmount] = useState('0');
+  const [depositAmount, setDepositAmount] = useState('0');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date().getTime() + DURATION_CHOICES['One Week'] * 1000);
   const [minDuration, setMinDuration] = useState(0);
@@ -270,16 +274,16 @@ export const CreateTask = () => {
     return startDate <= endDate;
   };
 
-  const isValidTokenAmount = () => {
-    return tokenAmount < tokenBalances[tokenSymbol];
+  const isValidDepositAmount = () => {
+    return depositAmount < tokenBalances[tokenSymbol];
   };
 
   const isValidTask = () => {
     return (
-      isValidAddress(promoterAddress) &&
+      isValidAddress(promoter) &&
       isPositiveInt(promoterUserId) &&
       // isValidAddress(tokenAddress) &&
-      isPositiveInt(tokenAmount) &&
+      isPositiveInt(depositAmount) &&
       // isValidStartDate() &&
       isValidEndDate() &&
       isValidMessage(message)
@@ -300,10 +304,10 @@ export const CreateTask = () => {
     console.log('creating task');
     console.log({
       platform: platform,
-      promoterAddress: promoterAddress,
+      promoter: promoter,
       promoterUserId: promoterUserId,
       tokenAddress: token.address,
-      tokenAmount: tokenAmount,
+      depositAmount: depositAmount,
       startDate: parseInt(startDate / 1000).toString(),
       endDate: parseInt(endDate / 1000).toString(),
       minDuration: minDuration.toString(),
@@ -313,10 +317,10 @@ export const CreateTask = () => {
     signContract
       .createTask(
         platform,
-        promoterAddress,
+        promoter,
         promoterUserId,
         token.address,
-        tokenAmount,
+        depositAmount,
         parseInt(startDate / 1000).toString(),
         parseInt(endDate / 1000).toString(),
         minDuration.toString(),
@@ -346,11 +350,11 @@ export const CreateTask = () => {
         </DTextField>
         <DTextField
           label="Promoter Address"
-          value={promoterAddress}
-          error={isTouched('promoterAddress') && !isValidAddress(promoterAddress)}
-          helperText={isTouched('promoterAddress') && !isValidAddress(promoterAddress) && 'Enter a valid address'}
+          value={promoter}
+          error={isTouched('promoter') && !isValidAddress(promoter)}
+          helperText={isTouched('promoter') && !isValidAddress(promoter) && 'Enter a valid address'}
           onChange={({ target }) => {
-            setTouched({ ...touched, promoterAddress: true });
+            setTouched({ ...touched, promoter: true });
             setPromoterAddress(target.value);
           }}
         />
@@ -380,16 +384,16 @@ export const CreateTask = () => {
         </DTextField>
         <DTextField
           label="Token Amount"
-          value={tokenAmount}
-          error={isTouched('tokenAmount') && (!isPositiveInt(tokenAmount) || !isValidTokenAmount())}
+          value={depositAmount}
+          error={isTouched('depositAmount') && (!isPositiveInt(depositAmount) || !isValidDepositAmount())}
           helperText={
-            isTouched('tokenAmount') &&
-            ((!isPositiveInt(tokenAmount) && 'Enter a valid amount') ||
-              (!isValidTokenAmount() && 'Amount exceeds balance'))
+            isTouched('depositAmount') &&
+            ((!isPositiveInt(depositAmount) && 'Enter a valid amount') ||
+              (!isValidDepositAmount() && 'Amount exceeds balance'))
           }
           onChange={({ target }) => {
-            setTouched({ ...touched, tokenAmount: true });
-            setTokenAmount(target.value);
+            setTouched({ ...touched, depositAmount: true });
+            setDepositAmount(target.value);
           }}
         />
         <DDateTimePicker
@@ -457,10 +461,7 @@ export const CreateTask = () => {
 
 // ================== Dev Tools ====================
 
-const mockMintInterface = [
-  'function mint(uint256 amount) public',
-  'function mintFor(address for, uint256 amount) public',
-];
+const mockMintInterface = ['function mint(uint256 amount)', 'function mintFor(address for, uint256 amount)'];
 
 export const DevTools = () => {
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');

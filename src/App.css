@@ -53,6 +53,14 @@ body {
   border-radius: 10px;
 }
 
+.solar {
+  width: 150px;
+  height: 150px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 10px 5px 25px red;
+}
+
 .socials {
   float: right;
 }

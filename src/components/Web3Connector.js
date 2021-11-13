@@ -5,7 +5,7 @@ import { Button } from '@mui/material';
 import { getNetworkName } from '../config/chainIds';
 import { A_VALID_CHAIN_ID, VALID_CHAIN_IDS, getContractAddress } from '../config/config';
 
-const { abi: contractABI } = require('../contracts/PrivateEscrow.json');
+const { abi: contractABI } = require('../contracts/TruPr.json');
 
 const web3ProviderRinkeby = new ethers.providers.AlchemyWebSocketProvider(
   'rinkeby',
