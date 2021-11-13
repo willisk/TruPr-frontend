@@ -3,6 +3,12 @@ import { useMemo, useEffect, useState, useContext } from 'react';
 import { Stack, MenuItem, Button, InputAdornment, LinearProgress, Chip } from '@mui/material';
 import { DStack, DTextField, DTextFieldInfo, DDateTimePicker } from '../config/defaults';
 
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Typography from '@mui/material/Typography';
+
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
@@ -13,6 +19,13 @@ import { TokenContext, WalletContext } from './WalletConnector';
 
 import { PLATFORM_TO_ID, ID_TO_PLATFORM, ID_TO_STATUS, oneWeek, DURATION_CHOICES, parseTask } from '../config/config';
 import { formatDuration } from '../config/utils';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import { Twitter } from '@mui/icons-material';
+
+const icons = {
+  Twitter: Twitter
+}
 
 // ================== Contract Infos ====================
 
@@ -80,49 +93,114 @@ export const OpenTasks = () => {
   }, [taskCount]);
 
 
-  function dateDiffInDays(a, b) {
+  function dateDiffInDays(task) {
+    let prefix = ''
+    let suffix = ''
+    const a = new Date(task.startDate * 1000)
+    const b = new Date(task.endDate * 1000)
+    if (new Date() > b) {
+      return '-'
+    }
+
+    if (new Date() < a) {
+      prefix = 'Starts in '
+      suffix = ' days'
+    } else {
+      suffix = ' days left'
+    }
     // Discard the time and time-zone information.
     const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
     const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
   
-    return Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
+    const res = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24))
+    console.log('hrer', res)
+    return prefix + res + suffix
+  }
+
+  function getProgressValue (task) {
+    const val = Math.round(((new Date() - new Date(task.startDate * 1000)) / (new Date(task.endDate * 1000) - new Date(task.startDate * 1000))) * 100)
+    return val > 100 ? 100 : val
+  }
+
+  function getIcon (icon) {
+    const DynamicIcon = icons[icon]
+    let extra = {}
+    if (icon === 'Twitter') {
+      extra = {
+        padding: '8px',
+        borderRadius: '50%',
+        background: '#54b2f5',
+        color: 'white'
+      }
+    }
+    return <DynamicIcon style={{display: 'inline-block', verticalAlign: 'middle', ...extra}}/>
+  }
+
+  function getReadableDate (d) {
+    return d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear()
   }
 
   const tasksList = () =>
     Object.entries(tasks).map(([id, task]) => (
-      <DStack key={id}>
-        <h3 style={{textAlign: 'left', marginTop: '0'}}>Task {id}</h3>
-        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-          <Chip label={ID_TO_STATUS[task.status]} color="primary" style={{maxWidth: '70px', width: '100%', background: 'rgb(102 187 106)'}} />
-          <span style={{marginTop: 'auto'}}>{dateDiffInDays(new Date(task.startDate * 1000), new Date(task.endDate * 1000))} days left</span>
-        </div>
-        <LinearProgress variant="determinate" value={Math.round(((new Date() - new Date(task.startDate * 1000)) / (new Date(task.endDate * 1000) - new Date(task.startDate * 1000))) * 100)} />
-        <div style={{display: 'flex', marginTop: '35px', justifyContent: 'space-evenly'}}>
-          <DTextFieldInfo style={{width: '50%'}} label="Token" value={tokenWhitelistAddressToSymbol[task.tokenAddress]} />
-          <DTextFieldInfo style={{width: '50%'}} label="Token Amount" value={task.tokenAmount} />
-        </div>
-        <div style={{textAlign: 'left'}}>
-        <h4>Description</h4>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.</p>
-        </div>
-        <DTextFieldInfo label="Status" value={ID_TO_STATUS[task.status]} />
-        <DTextFieldInfo label="Platform" value={ID_TO_PLATFORM[task.platform]} />
-        <DTextFieldInfo label="Sponsor Address" value={task.sponsorAddress} />
-        <DTextFieldInfo label="Promoter Address" value={task.promoterAddress} />
-        <DTextFieldInfo label="Promoter User Id" value={task.promoterUserId} />
-        <DTextFieldInfo label="Start Date" value={new Date(task.startDate * 1000).toString()} />
-        <DTextFieldInfo label="End Date" value={new Date(task.endDate * 1000).toString()} />
-        <DTextFieldInfo label="Min Duration" value={formatDuration(task.minDuration)} />
-        <DTextFieldInfo label="Hash" value={task.hash} />
-      </DStack>
+      <Grid item xs={12} md={6} lg={4}>
+        <DStack key={id} style={{position: 'relative'}}>
+          <h3 style={{textAlign: 'left', marginTop: '0'}}><span style={{display: 'inline-block', verticalAlign: 'middle'}}>Task {id}</span> <span style={{position: 'absolute', right: '20px', top: '20px'}}>{getIcon(ID_TO_PLATFORM[task.platform])}</span></h3>
+          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+            <Chip label={getProgressValue(task) === 100 ? "Closed" : ID_TO_STATUS[task.status]} color={getProgressValue(task) === 100 ? "error" : "success"} style={{maxWidth: '70px', width: '100%'}} />
+            <span style={{marginTop: 'auto'}}>{dateDiffInDays(task)}</span>
+          </div>
+          <LinearProgress variant="determinate" value={getProgressValue(task)} />
+          <Typography variant="h4" style={{textAlign: "left", fontSize: '12px', marginTop: '30px', fontWeight: '400', color: 'rgba(255, 255, 255, 0.7)'}}>
+          Reward
+          </Typography>
+          <Typography variant="body1" style={{textAlign: "left", marginTop: '5px'}}>
+          {task.tokenAmount.toString()} {tokenWhitelistAddressToSymbol[task.tokenAddress].toString()}
+          </Typography>
+          <div style={{display: 'flex', marginTop: '35px', marginBottom: '20px', justifyContent: 'space-evenly'}}>
+            <DTextFieldInfo style={{width: '50%'}} label="Starts on" value={getReadableDate(new Date(task.startDate * 1000))} />
+            <DTextFieldInfo style={{width: '50%'}} label="Ends on" value={getReadableDate(new Date(task.endDate * 1000))} />
+          </div>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography>Description</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div style={{textAlign: 'left'}}>
+                <Typography>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.
+                </Typography>
+                <Typography>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.
+                </Typography>
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          {/* <DTextFieldInfo label="Status" value={ID_TO_STATUS[task.status]} />
+          <DTextFieldInfo label="Platform" value={ID_TO_PLATFORM[task.platform]} />
+          <DTextFieldInfo label="Sponsor Address" value={task.sponsorAddress} />
+          <DTextFieldInfo label="Promoter Address" value={task.promoterAddress} />
+          <DTextFieldInfo label="Promoter User Id" value={task.promoterUserId} />
+          <DTextFieldInfo label="Start Date" value={new Date(task.startDate * 1000).toString()} />
+          <DTextFieldInfo label="End Date" value={new Date(task.endDate * 1000).toString()} />
+          <DTextFieldInfo label="Min Duration" value={formatDuration(task.minDuration)} />
+          <DTextFieldInfo label="Hash" value={task.hash} /> */}
+        </DStack>
+      </Grid>
     ));
 
   return (
-    <DStack>
+    <div>
       <h2>Open Tasks</h2>
-      {tasksList()}
-    </DStack>
+      <Box sx={{ flexGrow: 1 }}>
+        <Grid container spacing={2}>
+          {tasksList()}
+        </Grid>
+      </Box>
+    </div>
   );
 };
 

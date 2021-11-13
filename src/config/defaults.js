@@ -11,7 +11,7 @@ const StyledStack = styled(Stack)(({ theme }) => ({
 }));
 
 export const DStack = (props) => (
-  <div className="glass">
+  <div className="glass-solid">
     <StyledStack spacing={2} {...props} />
   </div>
 );
