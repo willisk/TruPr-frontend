@@ -34,6 +34,7 @@ export const dateDiffInDays = (task) => {
   let suffix = '';
   const a = new Date(task.startDate * 1000);
   const b = new Date(task.endDate * 1000);
+  const c = new Date();
   if (new Date() > b) {
     return '-';
   }
@@ -47,9 +48,15 @@ export const dateDiffInDays = (task) => {
   // Discard the time and time-zone information.
   const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
   const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+  const today = Date.UTC(c.getFullYear(), c.getMonth(), c.getDate());
 
-  const res = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
-  console.log('hrer', res);
+  
+  let res = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
+
+  if (prefix !== '') {
+    res = Math.floor((utc1 - today) / (1000 * 60 * 60 * 24));
+  }
+
   return prefix + res + suffix;
 };
 
