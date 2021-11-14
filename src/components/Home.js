@@ -1,14 +1,19 @@
+// import { Link } from '@mui/material';
 import { WalletConnectButton } from './WalletConnector';
-import { ContractVitals, CreateTask, DevTools, OpenTasks } from './Contract';
+import { ContractVitals } from './Dashboard';
+import { CreateTask } from './CreateTask';
+import { OpenTasks } from './OpenTasks';
 
 import { ReactComponent as TwitterLogo } from '../images/twitter.svg';
 import { ReactComponent as DiscordLogo } from '../images/discord.svg';
 // import { ReactComponent as OpenseaLogo } from '../images/opensea.svg';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+// import { withRouter } from 'react-router';
 
 import Button from '@mui/material/Button';
 
 // import * as React from 'react';
-import { useState, memo } from 'react';
+import { useState, memo, Fragment } from 'react';
 import Box from '@mui/material/Box';
 
 import Tabs from '@mui/material/Tabs';
@@ -39,7 +44,7 @@ function a11yProps(index) {
   };
 }
 
-function Home({ classes }) {
+function Home() {
   const [tab, setTab] = useState(0);
 
   const handleChange = (event, newTab) => {
@@ -47,9 +52,7 @@ function Home({ classes }) {
   };
 
   // XXX: why does this not prevent re-rendering?
-  const PanelOne = memo(() => {
-    return <ContractVitals />;
-  });
+  const PanelOne = memo(() => {});
   const PanelTwo = memo(() => {
     return <OpenTasks />;
   });
@@ -59,41 +62,111 @@ function Home({ classes }) {
 
   return (
     <div className="app">
-      <Grid
-        container
-        className="header"
-        alignItems="center"
-        sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.default' }}
-      >
-        <Grid item sx={{ flexGrow: 1 }}>
-          <Tabs value={tab} onChange={handleChange} aria-label="basic tabs">
-            <Tab label="Dashboard" {...a11yProps(0)} />
-            <Tab label="Open Tasks" {...a11yProps(1)} />
-            <Tab label="Create Task" {...a11yProps(2)} />
-          </Tabs>
-        </Grid>
-        <NetworkButton />
-        <WalletConnectButton />
-      </Grid>
-      <Box
-        component="main"
-        className="background"
-        sx={{
-          flexGrow: 1,
-          // bgcolor: 'background.default',
-          p: 3,
-          // width: '100%',
-        }}
-      >
-        {(tab === 0 && <PanelOne />) || (tab === 1 && <PanelTwo />) || (tab === 2 && <PanelThree />)}
-      </Box>
-      <Grid
-        container
-        className="footer"
-        sx={{ display: 'inline-block', borderTop: 1, borderColor: 'divider', bgcolor: 'background.default' }}
-      >
-        <Socials />
-      </Grid>
+      <BrowserRouter>
+        <Fragment>
+          <Grid
+            container
+            className="header"
+            alignItems="center"
+            sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.default' }}
+          >
+            <Grid item sx={{ flexGrow: 1 }}>
+              <Tabs value={0}>
+                <Tab label="Dashboard" component={Link} to={'/'} />
+                <Tab label="Open Tasks" component={Link} to={'/open-tasks'} />
+                <Tab label="Create Task" component={Link} to={'/create-task'} />
+              </Tabs>
+              {/* <Routes>
+                <Route
+                  path={'/'}
+                  render={({ location }) => {
+                    console.log('tab', 'loc', location);
+                    return (
+                      <Tabs value={'/'}>
+                        <Tab label="Dashboard" component={Link} to={'/'} />
+                        <Tab label="Open Tasks" component={Link} to={'/open-tasks'} />
+                        <Tab label="Create Task" component={Link} to={'/create-task'} />
+                      </Tabs>
+                    );
+                  }}
+                />
+              </Routes> */}
+              {/* <Route
+                  path={'/'}
+                  render={({ location }) => {
+                    console.log('tab', 'loc', location);
+                    return (
+                      // <Tabs value={location?.pathname}>
+                      <Tabs value={'/'}>
+                        <Tab label="Dashboard" component={Link} to={'/'} />
+                        <Tab label="Open Tasks" component={Link} to={'/open-tasks'} />
+                        <Tab label="Create Task" component={Link} to={'/create-task'} />
+                      </Tabs>
+                    );
+                  }}
+                /> */}
+              {/* {['/', '/open-tasks', '/create-task'].map((tab) => (
+                  <Route
+                    path={tab}
+                    render={({ location }) => {
+                      console.log('tab', tab, 'loc', location);
+                      return (
+                        // <Tabs value={location?.pathname}>
+                        <Tabs value={'/'}>
+                          <Tab label="Dashboard" component={Link} to={'/'} />
+                          <Tab label="Open Tasks" component={Link} to={'/open-tasks'} />
+                          <Tab label="Create Task" component={Link} to={'/create-task'} />
+                        </Tabs>
+                      );
+                    }}
+                  ></Route>
+                ))} */}
+              {/* </Routes> */}
+              {/* <Route
+                  path="/"
+                  render={({ location }) => {
+                    console.log('sdlfjlsjkfd', location);
+                    return null;
+                  }}
+                  // element={
+                  //   <Tabs value={'/'}>
+                  //     <Tab label="Dashboard" component={Link} to={'/'} />
+                  //     <Tab label="Open Tasks" component={Link} to={'/open-tasks'} />
+                  //     <Tab label="Create Task" component={Link} to={'/create-task'} />
+                  //   </Tabs>
+                  // }
+                ></Route>
+              </Routes> */}
+            </Grid>
+            <NetworkButton />
+            <WalletConnectButton />
+          </Grid>
+          <Box
+            component="main"
+            className="background"
+            sx={{
+              flexGrow: 1,
+              // bgcolor: 'background.default',
+              p: 3,
+              // width: '100%',
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<ContractVitals />} />
+              <Route path="/open-tasks" element={<OpenTasks />} />
+              <Route path="/create-task" element={<CreateTask />} />
+            </Routes>
+            {/* {(tab === 0 && <PanelOne />) || (tab === 1 && <PanelTwo />) || (tab === 2 && <PanelThree />)} */}
+          </Box>
+          <Grid
+            container
+            className="footer"
+            sx={{ display: 'inline-block', borderTop: 1, borderColor: 'divider', bgcolor: 'background.default' }}
+          >
+            <Socials />
+          </Grid>
+        </Fragment>
+      </BrowserRouter>
     </div>
   );
 }

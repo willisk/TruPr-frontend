@@ -57,7 +57,7 @@ export const WalletContext = createContext({
   requestAccount: undefined,
 });
 
-export function WalletConnector({ children }) {
+export const WalletConnector = ({ children }) => {
   const { contract, isValidChainId, setChainId } = useContext(Web3Context);
 
   const [provider, setProvider] = useState(null);
@@ -169,11 +169,11 @@ export function WalletConnector({ children }) {
       </Snackbar>
     </WalletContext.Provider>
   );
-}
+};
 
 export const TokenContext = createContext({});
 
-export function TokenConnector({ children }) {
+export const TokenConnector = ({ children }) => {
   const [tokenApprovals, setTokenApprovals] = useState({});
   const [tokenBalances, setTokenBalances] = useState({});
 
@@ -231,4 +231,4 @@ export function TokenConnector({ children }) {
   };
 
   return <TokenContext.Provider value={context}>{children}</TokenContext.Provider>;
-}
+};
