@@ -186,7 +186,7 @@ export const TokenConnector = ({ children }) => {
       //optional filter
       if (!_symbol || _symbol === symbol) {
         token.contract.allowance(walletAddress, contract.address).then((allowance) => {
-          const approved = allowance.toString() === ethers.constants.MaxUint256.toString(); // XXX: why doesn't normal compare work
+          const approved = allowance.toString() === ethers.constants.MaxUint256.toString();
           setTokenApprovals((approvals) => copyAddKeyValue(approvals, symbol, approved));
         });
       }
@@ -209,7 +209,7 @@ export const TokenConnector = ({ children }) => {
     // console.log('calling init Token');
     updateApprovals();
     updateBalances();
-  }, [updateApprovals, updateBalances]);
+  }, [updateApprovals, updateBalances, walletAddress]);
 
   const context = {
     tokenWhitelist: tokenWhitelist,
