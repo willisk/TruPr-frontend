@@ -173,43 +173,49 @@ export const TokenConnector = ({ children }) => {
   const [tokenApprovals, setTokenApprovals] = useState({});
   const [tokenBalances, setTokenBalances] = useState({});
 
-  const { contract, chainName, web3Provider } = useContext(Web3Context);
+  const { contract, chainName, chainId, web3Provider } = useContext(Web3Context);
   const { walletAddress } = useContext(WalletContext);
 
   const tokenWhitelist = getErc20TokenWhitelist(chainName, web3Provider);
   const tokenWhitelistAddressToSymbol = getWhitelistAddressToSymbol(chainName);
 
-  const updateApprovals = useCallback((_symbol) => {
-    if (!walletAddress) return;
-    // console.log('calling updateApprovals');
-    Object.entries(tokenWhitelist).forEach(([symbol, token]) => {
-      //optional filter
-      if (!_symbol || _symbol === symbol) {
-        token.contract.allowance(walletAddress, contract.address).then((allowance) => {
-          const approved = allowance.toString() === ethers.constants.MaxUint256.toString();
-          setTokenApprovals((approvals) => copyAddKeyValue(approvals, symbol, approved));
-        });
-      }
-    });
-  }, []);
+  const updateApprovals = useCallback(
+    (_symbol) => {
+      if (!walletAddress) return;
+      // console.log('calling updateApprovals');
+      Object.entries(tokenWhitelist).forEach(([symbol, token]) => {
+        //optional filter
+        if (!_symbol || _symbol === symbol) {
+          token.contract.allowance(walletAddress, contract.address).then((allowance) => {
+            const approved = allowance.toString() === ethers.constants.MaxUint256.toString();
+            setTokenApprovals((approvals) => copyAddKeyValue(approvals, symbol, approved));
+          });
+        }
+      });
+    },
+    [walletAddress, chainId]
+  );
 
-  const updateBalances = useCallback((_symbol) => {
-    if (!walletAddress) return;
-    // console.log('calling updateBalances');
-    Object.entries(tokenWhitelist).forEach(([symbol, token]) => {
-      if (!_symbol || _symbol === symbol) {
-        token.contract.balanceOf(walletAddress).then((balance) => {
-          setTokenBalances((balances) => copyAddKeyValue(balances, symbol, balance));
-        });
-      }
-    });
-  }, []);
+  const updateBalances = useCallback(
+    (_symbol) => {
+      // console.log('calling updateBalances');
+      if (!walletAddress) return;
+      Object.entries(tokenWhitelist).forEach(([symbol, token]) => {
+        if (!_symbol || _symbol === symbol) {
+          token.contract.balanceOf(walletAddress).then((balance) => {
+            setTokenBalances((balances) => copyAddKeyValue(balances, symbol, balance));
+          });
+        }
+      });
+    },
+    [walletAddress, chainId]
+  );
 
   useMemo(() => {
     // console.log('calling init Token');
     updateApprovals();
     updateBalances();
-  }, [updateApprovals, updateBalances, walletAddress]);
+  }, [walletAddress, updateApprovals, updateBalances]);
 
   const context = {
     tokenWhitelist: tokenWhitelist,

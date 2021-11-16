@@ -22,10 +22,10 @@ export const CreateTask = () => {
   // const [promoterUserId, setPromoterUserId] = useState('');
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
   const [depositAmount, setDepositAmount] = useState('0');
-  const [startDate, setStartDate] = useState(parseInt(new Date().getTime() / 1000));
-  const [endDate, setEndDate] = useState(parseInt(new Date().getTime() / 1000) + DURATION_CHOICES['One Week']);
+  const [startDate, setStartDate] = useState(new Date().getTime());
+  const [endDate, setEndDate] = useState(new Date().getTime() + DURATION_CHOICES['One Week']);
   const [vestingTerm, setVestingTerm] = useState(0);
-  const [data, setMessage] = useState('');
+  const [message, setMessage] = useState('');
   const [hash, setHash] = useState('');
 
   const [touched, setTouched] = useState({});
@@ -66,9 +66,9 @@ export const CreateTask = () => {
   //   }
   // });
 
-  // const isValidMessage = (msg) => {
-  //   return msg !== '';
-  // };
+  const isValidMessage = () => {
+    return message !== '';
+  };
 
   const isValidStartDate = () => {
     return new Date() <= startDate;
@@ -89,12 +89,12 @@ export const CreateTask = () => {
       // isValidAddress(tokenAddress) &&
       isPositiveInt(depositAmount) &&
       // isValidStartDate() &&
-      isValidEndDate()
-      // isValidMessage(data)
+      isValidEndDate() &&
+      isValidMessage()
     );
   };
 
-  // const data =
+  const data = message;
 
   const approveToken = () => {
     console.log('sending approve tx');
@@ -127,9 +127,9 @@ export const CreateTask = () => {
         // promoterUserId,
         token.address,
         depositAmount,
-        startDate.toString(),
-        endDate.toString(),
-        vestingTerm.toString(),
+        parseInt(startDate.toString() / 1000),
+        parseInt(endDate.toString() / 1000),
+        parseInt(vestingTerm.toString() / 1000),
         '0', // linear rate
         [100], // final x-tick: normed to 100
         [depositAmount],
@@ -210,7 +210,7 @@ export const CreateTask = () => {
           value={startDate}
           onChange={(newDate) => {
             setTouched({ ...touched, startDate: true });
-            setStartDate(parseInt(newDate.getTime() / 1000));
+            setStartDate(newDate.getTime());
           }}
           error={isTouched('startDate') && !isValidStartDate()}
           helperText={isTouched('startDate') && !isValidStartDate() && 'Start date is in the past'}
@@ -220,7 +220,7 @@ export const CreateTask = () => {
           value={endDate}
           onChange={(newDate) => {
             setTouched({ ...touched, endDate: true });
-            setEndDate(parseInt(newDate.getTime() / 1000));
+            setEndDate(newDate.getTime());
           }}
           error={isTouched('endDate') && !isValidEndDate()}
           helperText={isTouched('endDate') && !isValidEndDate() && 'End date must be after start date'}
@@ -241,12 +241,12 @@ export const CreateTask = () => {
         </DTextField>
         <DTextField
           multiline
-          label="Data"
-          value={data}
-          // error={isTouched('data') && !isValidMessage(data)}
-          // helperText={isTouched('data') && !isValidMessage(data) && 'Enter a valid message'}
+          label="Exact Message"
+          value={message}
+          error={isTouched('message') && !isValidMessage()}
+          helperText={isTouched('message') && !isValidMessage() && 'Enter a valid message'}
           onChange={({ target }) => {
-            setTouched({ ...touched, data: true });
+            setTouched({ ...touched, message: true });
             updateMessage(target.value);
           }}
         />
@@ -257,7 +257,6 @@ export const CreateTask = () => {
               Approve Token
             </Button>
           )}
-
           <Button disabled={!isValidTask() || !tokenApprovals[tokenSymbol]} variant="contained" onClick={createTask}>
             Create
           </Button>

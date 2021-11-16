@@ -68,10 +68,10 @@ export const ID_TO_PLATFORM = reverseLookup(PLATFORM_TO_ID);
 
 export const DURATION_CHOICES = {
   None: 0,
-  'One Day': 1 * 24 * 60 * 60,
-  'Three Days': 3 * 24 * 60 * 60,
-  'One Week': 1 * 7 * 24 * 60 * 60,
-  'Two Weeks': 2 * 7 * 24 * 60 * 60,
+  'One Day': 1 * 24 * 60 * 60 * 1000,
+  'Three Days': 3 * 24 * 60 * 60 * 1000,
+  'One Week': 1 * 7 * 24 * 60 * 60 * 1000,
+  'Two Weeks': 2 * 7 * 24 * 60 * 60 * 1000,
 };
 
 export const oneWeek = 7 * 24 * 60 * 60 * 1000;
