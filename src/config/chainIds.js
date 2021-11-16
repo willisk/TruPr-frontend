@@ -16,7 +16,7 @@ const ID_TO_CHAINNAME_LONG = {
   42: 'Kovan Testnet',
   137: 'Polygon Network',
   56: 'Binance Smartchain',
-  43114: 'AVAX Network',
+  43114: 'Avalanche Network',
 };
 
 const blockExplorerURLs = {
@@ -27,10 +27,9 @@ const blockExplorerURLs = {
   137: 'https://polygonscan.com/tx/',
 };
 
-export const getNetworkName = (chain) => ID_TO_CHAINNAME_SHORT[chain];
-export const getNetworkNameLong = (chain) => ID_TO_CHAINNAME_LONG[chain];
+export const getChainName = (chain) => ID_TO_CHAINNAME_SHORT[chain];
+export const getChainNameLong = (chain) => ID_TO_CHAINNAME_LONG[chain];
 
 export const getTransactionLink = (txHash, chainId) => {
-  console.log('chainid', chainId);
   return (blockExplorerURLs[chainId] ?? 'transaction: ') + txHash;
 };

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useMemo, useEffect, useState, useContext } from 'react';
-import { Stack, MenuItem, Button, InputAdornment, LinearProgress, Chip } from '@mui/material';
-import { DStack, DTextField, DTextFieldInfo, DDateTimePicker } from '../config/defaults';
+import { useMemo, useState, useContext } from 'react';
+import { InputAdornment } from '@mui/material';
+import { DStack, DTextFieldInfo } from '../config/defaults';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -30,10 +30,11 @@ export const ContractVitals = () => {
   };
 
   useMemo(() => {
+    // if (!isConnected) return;
     contract.owner().then(setContractOwner).catch(handleTxError);
     contract.taskCount().then(setTaskCount).catch(handleTxError);
     web3Provider.getBalance(contract.address).then(setContractBalance).catch(handleTxError);
-  }, []);
+  }, [contract, web3Provider]);
 
   const myPreviousTaskList = () => {
     return (
@@ -46,15 +47,10 @@ export const ContractVitals = () => {
                 primary="Task 0"
                 secondary={
                   <React.Fragment>
-                    <Typography
-                      sx={{ display: 'inline' }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
                       Status: CLOSED
                     </Typography>
-                    {" — Maybe go to a detail page on click?"}
+                    {' — Maybe go to a detail page on click?'}
                   </React.Fragment>
                 }
               />
@@ -65,15 +61,10 @@ export const ContractVitals = () => {
                 primary="Task 0"
                 secondary={
                   <React.Fragment>
-                    <Typography
-                      sx={{ display: 'inline' }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
                       Status: CLOSED
                     </Typography>
-                    {" — Maybe go to a detail page on click?"}
+                    {' — Maybe go to a detail page on click?'}
                   </React.Fragment>
                 }
               />
@@ -82,7 +73,7 @@ export const ContractVitals = () => {
         </DStack>
       </Grid>
     );
-  }
+  };
 
   const myOpenTaskList = () => {
     return (
@@ -95,15 +86,10 @@ export const ContractVitals = () => {
                 primary="Task 0"
                 secondary={
                   <React.Fragment>
-                    <Typography
-                      sx={{ display: 'inline' }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
                       Status: OPEN
                     </Typography>
-                    {" — Maybe go to a detail page on click?"}
+                    {' — Maybe go to a detail page on click?'}
                   </React.Fragment>
                 }
               />
@@ -114,15 +100,10 @@ export const ContractVitals = () => {
                 primary="Task 0"
                 secondary={
                   <React.Fragment>
-                    <Typography
-                      sx={{ display: 'inline' }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
                       Status: OPEN
                     </Typography>
-                    {" — Maybe go to a detail page on click?"}
+                    {' — Maybe go to a detail page on click?'}
                   </React.Fragment>
                 }
               />
@@ -133,15 +114,10 @@ export const ContractVitals = () => {
                 primary="Task 0"
                 secondary={
                   <React.Fragment>
-                    <Typography
-                      sx={{ display: 'inline' }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
                       Status: OPEN
                     </Typography>
-                    {" — Maybe go to a detail page on click?"}
+                    {' — Maybe go to a detail page on click?'}
                   </React.Fragment>
                 }
               />
@@ -152,15 +128,10 @@ export const ContractVitals = () => {
                 primary="Task 0"
                 secondary={
                   <React.Fragment>
-                    <Typography
-                      sx={{ display: 'inline' }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
                       Status: OPEN
                     </Typography>
-                    {" — Maybe go to a detail page on click?"}
+                    {' — Maybe go to a detail page on click?'}
                   </React.Fragment>
                 }
               />
@@ -171,15 +142,10 @@ export const ContractVitals = () => {
                 primary="Task 0"
                 secondary={
                   <React.Fragment>
-                    <Typography
-                      sx={{ display: 'inline' }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
                       Status: OPEN
                     </Typography>
-                    {" — Maybe go to a detail page on click?"}
+                    {' — Maybe go to a detail page on click?'}
                   </React.Fragment>
                 }
               />
@@ -188,7 +154,7 @@ export const ContractVitals = () => {
         </DStack>
       </Grid>
     );
-  }
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>

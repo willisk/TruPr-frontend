@@ -3,7 +3,7 @@ const icons = {
   Twitter: Twitter,
 };
 
-const objectMap = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]));
+// const objectMap = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]));
 
 export const reverseLookup = (obj) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]));
 
@@ -50,7 +50,6 @@ export const dateDiffInDays = (task) => {
   const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
   const today = Date.UTC(c.getFullYear(), c.getMonth(), c.getDate());
 
-  
   let res = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
 
   if (prefix !== '') {
@@ -88,8 +87,8 @@ export const getReadableDate = (d) => {
 };
 
 export const getTaskState = (task) => {
-  if (task.status == 0) return 'Cancelled';
-  if (task.status == 1 && task.startDate * 1000 <= new Date().getTime() && new Date().getTime() < task.endDate * 1000)
+  if (task.status === 0) return 'Cancelled';
+  if (task.status === 1 && task.startDate * 1000 <= new Date().getTime() && new Date().getTime() < task.endDate * 1000)
     return 'Open';
   return 'Closed';
 };

@@ -2,6 +2,9 @@ import { ethers } from 'ethers';
 import { reverseLookup } from './utils';
 
 const { abi: ERC20ABI } = require('../contracts/ERC20.json');
+export const contractABI = require('../contracts/TruPr.json').abi;
+
+// ---------- config -----------
 
 // export const VALID_CHAIN_IDS = ['42', '4'];
 export const VALID_CHAIN_IDS = ['42'];
@@ -24,6 +27,32 @@ const whitelist = [
   },
 ];
 
+const web3ProviderRinkeby = new ethers.providers.AlchemyWebSocketProvider(
+  'rinkeby',
+  process.env.REACT_APP_ALCHEMY_KEY_RINKEBY
+);
+const web3ProviderKovan = new ethers.providers.AlchemyWebSocketProvider(
+  'kovan',
+  process.env.REACT_APP_ALCHEMY_KEY_KOVAN
+);
+
+// ---------- exports -----------
+
+export const getContractAddress = (chainName) => {
+  return contractAddress[chainName];
+};
+
+export const getContract = (chainName) => {
+  const contractAddress = getContractAddress(chainName);
+  const web3Provider = getProvider(chainName);
+  return new ethers.Contract(contractAddress, contractABI, web3Provider);
+};
+
+export const getProvider = (chainName) => {
+  if (chainName === 'rinkeby') return web3ProviderRinkeby;
+  if (chainName === 'kovan') return web3ProviderKovan;
+};
+
 export const PLATFORM_TO_ID = {
   Twitter: 0,
   Instagram: 1,
@@ -37,10 +66,6 @@ export const ID_TO_STATUS = {
 
 export const ID_TO_PLATFORM = reverseLookup(PLATFORM_TO_ID);
 
-export const getContractAddress = (networkName) => {
-  return contractAddress[networkName];
-};
-
 export const DURATION_CHOICES = {
   None: 0,
   'One Day': 1 * 24 * 60 * 60,
@@ -51,7 +76,9 @@ export const DURATION_CHOICES = {
 
 export const oneWeek = 7 * 24 * 60 * 60 * 1000;
 
-export const A_VALID_CHAIN_ID = VALID_CHAIN_IDS[0];
+export const DEFAULT_CHAIN_ID = VALID_CHAIN_IDS[0];
+
+export const isValidChainId = (chainId) => VALID_CHAIN_IDS.includes(chainId);
 
 export const getWhitelistAddressToSymbol = (chainName) => {
   return reverseLookup(buildDictIndexedBy(whitelist, 'symbol', (token) => token.address[chainName]));

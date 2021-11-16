@@ -1,7 +1,7 @@
 import React from 'react';
-import { useMemo, useEffect, useState, useContext } from 'react';
-import { Stack, MenuItem, Button, InputAdornment, LinearProgress, Chip } from '@mui/material';
-import { DStack, DTextField, DTextFieldInfo, DDateTimePicker } from '../config/defaults';
+import { useState, useContext } from 'react';
+import { Stack, MenuItem, Button } from '@mui/material';
+import { DStack, DTextField, DDateTimePicker } from '../config/defaults';
 
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 import { Web3Context } from './Web3Connector';
 import { TokenContext, WalletContext } from './WalletConnector';
 
-import { PLATFORM_TO_ID, ID_TO_PLATFORM, ID_TO_STATUS, oneWeek, DURATION_CHOICES } from '../config/config';
+import { PLATFORM_TO_ID, DURATION_CHOICES } from '../config/config';
 
 // ================== Create Task ====================
 
@@ -32,7 +32,7 @@ export const CreateTask = () => {
   const isTouched = (key) => Object.keys(touched).includes(key);
 
   const { tokenWhitelist, tokenApprovals, tokenBalances, updateApprovals } = useContext(TokenContext);
-  const { handleTx, handleTxError, walletAddress, signContract, walletProvider } = useContext(WalletContext);
+  const { handleTx, handleTxError, signContract, walletProvider } = useContext(WalletContext);
   const { contract } = useContext(Web3Context);
 
   // const handleTx = handleTxWrapper(() => {});
@@ -49,7 +49,7 @@ export const CreateTask = () => {
 
   const isPositiveInt = (amt) => {
     const parsedAmt = parseInt(amt);
-    return parsedAmt.toString() == amt && !isNaN(parsedAmt) && parsedAmt > 0;
+    return parsedAmt.toString() === amt && !isNaN(parsedAmt) && parsedAmt > 0;
   };
 
   const isValidAddress = (address) => {
@@ -66,9 +66,9 @@ export const CreateTask = () => {
   //   }
   // });
 
-  const isValidMessage = (msg) => {
-    return msg !== '';
-  };
+  // const isValidMessage = (msg) => {
+  //   return msg !== '';
+  // };
 
   const isValidStartDate = () => {
     return new Date() <= startDate;
@@ -276,14 +276,14 @@ export const DevTools = () => {
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
 
   const { tokenWhitelist, tokenBalances, updateBalances } = useContext(TokenContext);
-  const { handleTxError, handleTx, walletAddress, walletProvider } = useContext(WalletContext);
+  const { handleTxError, handleTx, walletProvider, isConnected } = useContext(WalletContext);
 
   const token = tokenWhitelist[tokenSymbol];
 
   const mint = () => {
     const contract = new ethers.Contract(token.address, mockMintInterface);
     contract
-      .connect(walletProvider.getSigner())
+      .connect(isConnected ? walletProvider.getSigner() : null)
       .mint('1000')
       .then(handleTx)
       .then(() => updateBalances(tokenSymbol))
@@ -292,7 +292,7 @@ export const DevTools = () => {
 
   return (
     <DStack>
-      <h2>// Dev Tools</h2>
+      <h2>Dev Tools</h2>
       <DTextField
         select
         label="Token"
