@@ -53,18 +53,22 @@ export const getProvider = (chainName) => {
   if (chainName === 'kovan') return web3ProviderKovan;
 };
 
-export const PLATFORM_TO_ID = {
-  Twitter: 0,
-  Instagram: 1,
+export const ID_TO_PLATFORM = {
+  0: 'Twitter',
+  1: 'Instagram',
 };
-
 export const ID_TO_STATUS = {
   0: 'Closed',
   1: 'Open',
   2: 'Fulfilled',
 };
 
-export const ID_TO_PLATFORM = reverseLookup(PLATFORM_TO_ID);
+export const ID_TO_METRIC = {
+  0: 'Time',
+  1: 'Likes',
+  2: 'Retweets',
+  3: 'Comments',
+};
 
 export const DURATION_CHOICES = {
   None: 0,
@@ -73,6 +77,9 @@ export const DURATION_CHOICES = {
   'One Week': 1 * 7 * 24 * 60 * 60 * 1000,
   'Two Weeks': 2 * 7 * 24 * 60 * 60 * 1000,
 };
+
+export const PLATFORM_TO_ID = reverseLookup(ID_TO_PLATFORM);
+export const METRIC_TO_ID = reverseLookup(ID_TO_METRIC);
 
 export const oneWeek = 7 * 24 * 60 * 60 * 1000;
 

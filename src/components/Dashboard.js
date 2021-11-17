@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMemo, useState, useContext } from 'react';
 import { InputAdornment } from '@mui/material';
-import { DStack, DTextFieldInfo } from '../config/defaults';
+import { DStackColumn, DTextFieldInfo } from '../config/defaults';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -39,7 +39,7 @@ export const ContractVitals = () => {
   const myPreviousTaskList = () => {
     return (
       <Grid item xs={12} md={6} lg={4}>
-        <DStack>
+        <DStackColumn>
           <h2>My closed tasks</h2>
           <List sx={{ width: '100%', bgcolor: 'background.paper', overflow: 'auto', maxHeight: 300 }}>
             <ListItem alignItems="flex-start">
@@ -70,7 +70,7 @@ export const ContractVitals = () => {
               />
             </ListItem>
           </List>
-        </DStack>
+        </DStackColumn>
       </Grid>
     );
   };
@@ -78,7 +78,7 @@ export const ContractVitals = () => {
   const myOpenTaskList = () => {
     return (
       <Grid item xs={12} md={6} lg={4}>
-        <DStack>
+        <DStackColumn>
           <h2>My open tasks</h2>
           <List sx={{ width: '100%', bgcolor: 'background.paper', overflow: 'auto', maxHeight: 300 }}>
             <ListItem alignItems="flex-start">
@@ -151,7 +151,7 @@ export const ContractVitals = () => {
               />
             </ListItem>
           </List>
-        </DStack>
+        </DStackColumn>
       </Grid>
     );
   };
@@ -160,7 +160,7 @@ export const ContractVitals = () => {
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={4}>
-          <DStack>
+          <DStackColumn>
             <h2>Contract Infos</h2>
             <DTextFieldInfo label="Address" value={contract?.address} />
             <DTextFieldInfo label="Owner" value={contractOwner} />
@@ -172,7 +172,7 @@ export const ContractVitals = () => {
               }}
             />
             <DTextFieldInfo label="Task Count" value={taskCount} />
-          </DStack>
+          </DStackColumn>
         </Grid>
         {myOpenTaskList()}
         {myPreviousTaskList()}

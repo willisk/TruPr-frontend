@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useMemo, useState, useContext } from 'react';
 import { Button, Checkbox, LinearProgress, Chip } from '@mui/material';
-import { DStack, DTextFieldInfo } from '../config/defaults';
+import { DStackColumn, DTextFieldInfo } from '../config/defaults';
 
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -33,7 +33,7 @@ export const Task = ({ task, taskId, updateTasks, detailedTaskView }) => {
   const now = new Date().getTime() / 1000;
 
   return (
-    <DStack style={{ position: 'relative' }}>
+    <DStackColumn style={{ position: 'relative' }}>
       <h3 style={{ textAlign: 'left', marginTop: '0' }}>
         <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>Task {taskId}</span>{' '}
         <span style={{ position: 'absolute', right: '20px', top: '20px' }}>
@@ -125,7 +125,7 @@ export const Task = ({ task, taskId, updateTasks, detailedTaskView }) => {
       >
         Fulfill Task
       </Button>
-    </DStack>
+    </DStackColumn>
   );
 };
 

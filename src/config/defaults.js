@@ -4,16 +4,34 @@ import { styled, TextField, Stack } from '@mui/material';
 import DateTimePicker from '@mui/lab/DateTimePicker';
 
 const StyledStack = styled(Stack)(({ theme }) => ({
-  padding: '2em 1em',
+  margin: '1em 0',
+  padding: '1em 1em',
   maxWidth: 600,
-  margin: 'auto',
+  marginLeft: 'auto',
+  marginRight: 'auto',
   textAlign: 'center',
 }));
 
-export const DStack = (props) => (
-  <div className="glass-solid">
-    <StyledStack spacing={2} {...props} />
-  </div>
+const StyledStackRow = styled(Stack)(({ theme }) => ({
+  // margin: '1em 0',
+  // padding: '1em 1em',
+  maxWidth: 600,
+  // marginLeft: 'auto',
+  // marginRight: 'auto',
+  textAlign: 'center',
+  // display: 'inline-block',
+}));
+
+export const DStackColumn = (props) => (
+  // <div className="glass-solid">
+  <StyledStack className="glass-solid" spacing={2} {...props} />
+  // </div>
+);
+
+export const DStackRow = (props) => (
+  // <div className="glass-solid">
+  <StyledStackRow spacing={2} direction="row" {...props} />
+  // </div>
 );
 export const DTextField = (props) => <TextField variant="outlined" {...props} />;
 export const DTextFieldInfo = (props) => (

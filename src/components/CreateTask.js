@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useContext } from 'react';
-import { Stack, MenuItem, Button } from '@mui/material';
-import { DStack, DTextField, DDateTimePicker } from '../config/defaults';
+import { Stack, Checkbox, MenuItem, Button } from '@mui/material';
+import { DStackColumn, DTextField, DTextFieldInfo, DDateTimePicker, DStackRow } from '../config/defaults';
 
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 import { Web3Context } from './Web3Connector';
 import { TokenContext, WalletContext } from './WalletConnector';
 
-import { PLATFORM_TO_ID, DURATION_CHOICES } from '../config/config';
+import { PLATFORM_TO_ID, DURATION_CHOICES, METRIC_TO_ID } from '../config/config';
 
 // ================== Create Task ====================
 
@@ -19,14 +19,16 @@ export const CreateTask = () => {
   // console.log('rendering', 'Create')
   const [platform, setPlatform] = useState('0');
   const [promoter, setPromoterAddress] = useState('');
-  // const [promoterUserId, setPromoterUserId] = useState('');
+  const [promoterUserId, setPromoterUserId] = useState('');
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
   const [depositAmount, setDepositAmount] = useState('0');
   const [startDate, setStartDate] = useState(new Date().getTime());
   const [endDate, setEndDate] = useState(new Date().getTime() + DURATION_CHOICES['One Week']);
+  const [metric, setMetric] = useState('0');
   const [vestingTerm, setVestingTerm] = useState(0);
+  const [linearRate, setLinearRate] = useState(true);
   const [message, setMessage] = useState('');
-  const [hash, setHash] = useState('');
+  const [data, setData] = useState({ platform: '0', userId: '0', metric: '0', messageHash: '0' });
 
   const [touched, setTouched] = useState({});
   const isTouched = (key) => Object.keys(touched).includes(key);
@@ -40,9 +42,9 @@ export const CreateTask = () => {
 
   const updateMessage = (msg) => {
     setMessage(msg);
-    let _hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [msg.trim()]));
-    setHash(_hash);
-    // console.log('setting msg', msg, '\n', _hash);
+    let hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [msg.trim()]));
+    setData({ ...data, messageHash: hash });
+    // console.log('setting msg', msg, '\n', hash);
   };
 
   // parsing functions
@@ -60,11 +62,6 @@ export const CreateTask = () => {
       return false;
     }
   };
-
-  // const checkIsTokenApproved = useEffect(() => {
-  //   if (isValidAddress(tokenAddress)) {
-  //   }
-  // });
 
   const isValidMessage = () => {
     return message !== '';
@@ -85,7 +82,7 @@ export const CreateTask = () => {
   const isValidTask = () => {
     return (
       isValidAddress(promoter) &&
-      // isPositiveInt(promoterUserId) &&
+      isPositiveInt(promoterUserId) &&
       // isValidAddress(tokenAddress) &&
       isPositiveInt(depositAmount) &&
       // isValidStartDate() &&
@@ -93,8 +90,6 @@ export const CreateTask = () => {
       isValidMessage()
     );
   };
-
-  const data = message;
 
   const approveToken = () => {
     console.log('sending approve tx');
@@ -107,18 +102,23 @@ export const CreateTask = () => {
   };
 
   const createTask = () => {
-    console.log('creating task');
-    console.log({
+    const task = {
       // platform: platform,
       promoter: promoter,
       // promoterUserId: promoterUserId,
       tokenAddress: token.address,
       depositAmount: depositAmount,
-      startDate: startDate.toString(),
-      endDate: endDate.toString(),
-      vestingTerm: vestingTerm.toString(),
-      hash: hash,
-    });
+      startDate: parseInt(startDate.toString() / 1000),
+      endDate: parseInt(endDate.toString() / 1000),
+      vestingTerm: parseInt(vestingTerm.toString() / 1000),
+      linearRate: linearRate,
+      xticks: [100],
+      yticks: [depositAmount],
+      data: JSON.stringify(data),
+    };
+
+    console.log('creating task');
+    console.log(task);
 
     signContract
       .createTask(
@@ -133,7 +133,8 @@ export const CreateTask = () => {
         '0', // linear rate
         [100], // final x-tick: normed to 100
         [depositAmount],
-        data
+        JSON.stringify(data)
+        // data,  // XXX: test this out?
       )
       .then(handleTx)
       .catch(handleTxError);
@@ -141,7 +142,7 @@ export const CreateTask = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <DStack>
+      <DStackColumn>
         <h2>Create Task</h2>
         <DTextField
           select
@@ -149,6 +150,7 @@ export const CreateTask = () => {
           value={platform}
           onChange={({ target }) => {
             setPlatform(target.value);
+            setData({ ...data, platform: target.value });
           }}
         >
           {Object.entries(PLATFORM_TO_ID).map(([platformName, platformId]) => (
@@ -167,7 +169,7 @@ export const CreateTask = () => {
             setPromoterAddress(target.value);
           }}
         />
-        {/* <DTextField
+        <DTextField
           label="Promoter User Id"
           value={promoterUserId}
           error={isTouched('promoterUserId') && !isPositiveInt(promoterUserId)}
@@ -175,70 +177,95 @@ export const CreateTask = () => {
           onChange={({ target }) => {
             setTouched({ ...touched, promoterUserId: true });
             setPromoterUserId(target.value);
-          }}
-        /> */}
-        <DTextField
-          select
-          label="Token"
-          value={tokenSymbol}
-          onChange={({ target }) => {
-            setTokenSymbol(target.value);
-          }}
-        >
-          {Object.entries(tokenWhitelist).map(([symbol, _token]) => (
-            <MenuItem key={symbol} value={symbol}>
-              {symbol + ' (balance: ' + tokenBalances[symbol] + ')'}
-            </MenuItem>
-          ))}
-        </DTextField>
-        <DTextField
-          label="Token Amount"
-          value={depositAmount}
-          error={isTouched('depositAmount') && (!isPositiveInt(depositAmount) || !isValidDepositAmount())}
-          helperText={
-            isTouched('depositAmount') &&
-            ((!isPositiveInt(depositAmount) && 'Enter a valid amount') ||
-              (!isValidDepositAmount() && 'Amount exceeds balance'))
-          }
-          onChange={({ target }) => {
-            setTouched({ ...touched, depositAmount: true });
-            setDepositAmount(target.value);
+            setData({ ...data, userId: target.value });
           }}
         />
-        <DDateTimePicker
-          label="Promotion Start Date"
-          value={startDate}
-          onChange={(newDate) => {
-            setTouched({ ...touched, startDate: true });
-            setStartDate(newDate.getTime());
-          }}
-          error={isTouched('startDate') && !isValidStartDate()}
-          helperText={isTouched('startDate') && !isValidStartDate() && 'Start date is in the past'}
-        />
-        <DDateTimePicker
-          label="Promotion End Date"
-          value={endDate}
-          onChange={(newDate) => {
-            setTouched({ ...touched, endDate: true });
-            setEndDate(newDate.getTime());
-          }}
-          error={isTouched('endDate') && !isValidEndDate()}
-          helperText={isTouched('endDate') && !isValidEndDate() && 'End date must be after start date'}
-        />
-        <DTextField
-          select
-          label="Vesting Term"
-          value={vestingTerm}
-          onChange={({ target }) => {
-            setVestingTerm(target.value);
-          }}
-        >
-          {Object.entries(DURATION_CHOICES).map(([choice, time]) => (
-            <MenuItem key={time} value={time}>
-              {choice}
-            </MenuItem>
-          ))}
-        </DTextField>
+        <DStackRow>
+          <DTextField
+            label="Amount"
+            value={depositAmount}
+            error={isTouched('depositAmount') && (!isPositiveInt(depositAmount) || !isValidDepositAmount())}
+            helperText={
+              isTouched('depositAmount') &&
+              ((!isPositiveInt(depositAmount) && 'Enter a valid amount') ||
+                (!isValidDepositAmount() && 'Amount exceeds balance'))
+            }
+            onChange={({ target }) => {
+              setTouched({ ...touched, depositAmount: true });
+              setDepositAmount(target.value);
+            }}
+          />
+          <DTextField
+            select
+            label="Token"
+            value={tokenSymbol}
+            onChange={({ target }) => {
+              setTokenSymbol(target.value);
+            }}
+          >
+            {Object.entries(tokenWhitelist).map(([symbol, _token]) => (
+              <MenuItem key={symbol} value={symbol}>
+                {symbol + ' (balance: ' + tokenBalances[symbol] + ')'}
+              </MenuItem>
+            ))}
+          </DTextField>
+        </DStackRow>
+        <DStackRow>
+          <DDateTimePicker
+            label="Promotion Start Date"
+            value={startDate}
+            onChange={(newDate) => {
+              setTouched({ ...touched, startDate: true });
+              setStartDate(newDate.getTime());
+            }}
+            error={isTouched('startDate') && !isValidStartDate()}
+            helperText={isTouched('startDate') && !isValidStartDate() && 'Start date is in the past'}
+          />
+          <DDateTimePicker
+            label="Promotion End Date"
+            value={endDate}
+            onChange={(newDate) => {
+              setTouched({ ...touched, endDate: true });
+              setEndDate(newDate.getTime());
+            }}
+            error={isTouched('endDate') && !isValidEndDate()}
+            helperText={isTouched('endDate') && !isValidEndDate() && 'End date must be after start date'}
+          />
+        </DStackRow>
+        <DStackRow>
+          <DTextField
+            select
+            label="Metric"
+            value={metric}
+            onChange={({ target }) => {
+              setMetric(target.value);
+              setData({ ...data, metric: target.value });
+            }}
+          >
+            {Object.entries(METRIC_TO_ID).map(([choice, time]) => (
+              <MenuItem key={time} value={time}>
+                {choice}
+              </MenuItem>
+            ))}
+          </DTextField>
+          <DTextField
+            select
+            label="Vesting Term"
+            value={vestingTerm}
+            onChange={({ target }) => {
+              setVestingTerm(target.value);
+            }}
+          >
+            {Object.entries(DURATION_CHOICES).map(([choice, time]) => (
+              <MenuItem key={time} value={time}>
+                {choice}
+              </MenuItem>
+            ))}
+          </DTextField>
+          <Checkbox checked={linearRate} onChange={({ target }) => setLinearRate(target.checked)} />
+          <span>Linear Rate</span>
+          {/* Linear Rate */}
+        </DStackRow>
         <DTextField
           multiline
           label="Exact Message"
@@ -250,7 +277,7 @@ export const CreateTask = () => {
             updateMessage(target.value);
           }}
         />
-        {/* <DTextFieldInfo label="Message Hash" value={hash} disabled={true} /> */}
+        <DTextFieldInfo multiline label="Data Field" value={JSON.stringify(data)} disabled={true} />
         <Stack>
           {!tokenApprovals[tokenSymbol] && (
             <Button variant="contained" onClick={approveToken}>
@@ -261,7 +288,7 @@ export const CreateTask = () => {
             Create
           </Button>
         </Stack>
-      </DStack>
+      </DStackColumn>
       <DevTools />
     </LocalizationProvider>
   );
@@ -290,7 +317,7 @@ export const DevTools = () => {
   };
 
   return (
-    <DStack>
+    <DStackColumn>
       <h2>Dev Tools</h2>
       <DTextField
         select
@@ -309,6 +336,6 @@ export const DevTools = () => {
       <Button variant="contained" onClick={mint}>
         Mint 1000
       </Button>
-    </DStack>
+    </DStackColumn>
   );
 };
