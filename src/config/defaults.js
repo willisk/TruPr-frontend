@@ -33,7 +33,7 @@ export const DStackRow = (props) => (
   <StyledStackRow spacing={2} direction="row" {...props} />
   // </div>
 );
-export const DTextField = (props) => <TextField variant="outlined" {...props} />;
+export const DTextField = (props) => <TextField variant="outlined" style={{ flexGrow: 1 }} {...props} />;
 export const DTextFieldInfo = (props) => (
   <DTextField
     variant="standard"

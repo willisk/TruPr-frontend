@@ -9,8 +9,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 
-import { Web3Context } from './Web3Connector';
-import { TokenContext, WalletContext } from './WalletConnector';
+import { Web3Context, TokenContext, TaskContext, WalletContext } from './context/context';
 
 import { getTaskState } from '../config/utils';
 import Box from '@mui/material/Box';
@@ -18,12 +17,55 @@ import Grid from '@mui/material/Grid';
 
 import { getIcon, getProgressValue, dateDiffInDays, getReadableDate } from '../config/utils';
 
-export const Task = ({ task, taskId, updateTasks, detailedTaskView }) => {
+export const OpenTasks = () => {
+  // console.log('rendering', 'OpenTasks');
+  // const [taskCount, setTaskCount] = useState(0);
+  const [viewAll, setViewAll] = useState(true);
+
+  const { walletAddress } = useContext(WalletContext);
+  const { tasks } = useContext(TaskContext);
+
+  // const updateTaskCount = () => {
+  //   console.log('calling updateTaskCount');
+  //   contract.taskCount().then(setTaskCount).catch(console.error);
+  // };
+
+  // useEffect(updateTasks, [taskCount]);
+  console.log('OpenTasks tasks', tasks);
+
+  const taskEntries = () => {
+    if (!tasks) return;
+    let entries = tasks;
+    if (!viewAll) entries = entries.filter((task) => task.address === 0 || task.address === walletAddress);
+
+    return entries.map((task, id) => (
+      <Grid item key={id} xs={12} md={6} lg={4}>
+        <Task task={task} taskId={id} detailedTaskView />
+      </Grid>
+    ));
+  };
+
+  return (
+    <div>
+      <Checkbox checked={viewAll} onChange={(event) => setViewAll(event.target.checked)} />
+      View all tasks
+      <h2>Open Tasks</h2>
+      <Box sx={{ flexGrow: 1 }}>
+        <Grid container spacing={2}>
+          {taskEntries()}
+        </Grid>
+      </Box>
+    </div>
+  );
+};
+
+export const Task = ({ task, taskId, detailedTaskView }) => {
   // console.log('id', taskId, detailedTaskView);
   // console.log('task', task);
 
   const { walletAddress, signContract, handleTx, handleTxError } = useContext(WalletContext);
   const { tokenWhitelistAddressToSymbol } = useContext(TokenContext);
+  const { updateTasks } = useContext(TaskContext);
 
   const fulfillTask = (id) => {
     signContract.fulfillTask(id).then(handleTx).then(updateTasks).catch(handleTxError);
@@ -126,62 +168,5 @@ export const Task = ({ task, taskId, updateTasks, detailedTaskView }) => {
         Fulfill Task
       </Button>
     </DStackColumn>
-  );
-};
-
-// ================== Open Tasks ====================
-
-export const OpenTasks = () => {
-  // console.log('rendering', 'OpenTasks');
-  // const [taskCount, setTaskCount] = useState(0);
-  const [tasks, setTasks] = useState([]);
-  const [viewAll, setViewAll] = useState(false);
-
-  const { contract } = useContext(Web3Context);
-  const { walletAddress } = useContext(WalletContext);
-
-  // const updateTaskCount = () => {
-  //   console.log('calling updateTaskCount');
-  //   contract.taskCount().then(setTaskCount).catch(console.error);
-  // };
-
-  const updateTasks = useCallback(() => {
-    // console.log('calling updateTasks');
-    // updateTaskCount();
-    contract.getAllTasks().then(setTasks).catch(console.error);
-  }, [contract]);
-
-  useMemo(() => {
-    // console.log('calling init OpenTasks');
-    // updateTaskCount();
-    updateTasks();
-    contract.on(contract.filters.TaskCreated(), updateTasks);
-  }, [contract, updateTasks]);
-
-  // useEffect(updateTasks, [taskCount]);
-
-  const taskEntries = () => {
-    if (!tasks) return;
-    let entries = tasks;
-    if (!viewAll) entries = entries.filter((task) => task.address === 0 || task.address === walletAddress);
-
-    return entries.map((task, id) => (
-      <Grid item key={id} xs={12} md={6} lg={4}>
-        <Task task={task} taskId={id} updateTasks={updateTasks} detailedTaskView />
-      </Grid>
-    ));
-  };
-
-  return (
-    <div>
-      <Checkbox checked={viewAll} onChange={(event) => setViewAll(event.target.checked)} />
-      View all tasks
-      <h2>Open Tasks</h2>
-      <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={2}>
-          {taskEntries()}
-        </Grid>
-      </Box>
-    </div>
   );
 };

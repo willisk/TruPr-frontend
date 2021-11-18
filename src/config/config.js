@@ -53,21 +53,22 @@ export const getProvider = (chainName) => {
   if (chainName === 'kovan') return web3ProviderKovan;
 };
 
-export const ID_TO_PLATFORM = {
-  0: 'Twitter',
-  1: 'Instagram',
-};
 export const ID_TO_STATUS = {
   0: 'Closed',
   1: 'Open',
   2: 'Fulfilled',
 };
 
+export const ID_TO_PLATFORM = {
+  Twitter: 'Twitter',
+  Instagram: 'Instagram',
+};
+
 export const ID_TO_METRIC = {
-  0: 'Time',
-  1: 'Likes',
-  2: 'Retweets',
-  3: 'Comments',
+  Time: 'Time',
+  Likes: 'Likes',
+  Retweets: 'Retweets',
+  Comments: 'Comments',
 };
 
 export const DURATION_CHOICES = {

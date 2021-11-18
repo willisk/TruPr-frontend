@@ -1,17 +1,8 @@
 import { useState, createContext, useContext } from 'react';
 import { Button } from '@mui/material';
 
-import { getChainName, getChainNameLong } from '../config/chainIds';
-import { DEFAULT_CHAIN_ID, isValidChainId, getProvider, getContract } from '../config/config';
-
-export const NetworkButton = () => {
-  const { chainName } = useContext(Web3Context);
-  return (
-    <Button className="network-button" variant="outlined">
-      {chainName}
-    </Button>
-  );
-};
+import { getChainName, getChainNameLong } from '../../config/chainIds';
+import { DEFAULT_CHAIN_ID, isValidChainId, getProvider, getContract } from '../../config/config';
 
 export const Web3Context = createContext({});
 
@@ -51,5 +42,14 @@ export const Web3Connector = ({ children }) => {
       )}
       {children}
     </Web3Context.Provider>
+  );
+};
+
+export const NetworkButton = () => {
+  const { chainName } = useContext(Web3Context);
+  return (
+    <Button className="network-button" variant="outlined">
+      {chainName}
+    </Button>
   );
 };

@@ -1,5 +1,5 @@
 // import { Link } from '@mui/material';
-import { WalletConnectButton } from './WalletConnector';
+import { WalletConnectButton } from './context/WalletContext';
 import { ContractVitals } from './Dashboard';
 import { CreateTask } from './CreateTask';
 import { OpenTasks } from './OpenTasks';
@@ -19,7 +19,7 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { Grid } from '@mui/material';
-import { NetworkButton } from './Web3Connector';
+import { NetworkButton } from './context/context';
 
 const Socials = () => (
   <div className="socials">

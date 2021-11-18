@@ -8,8 +8,7 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 import { ethers } from 'ethers';
 
-import { Web3Context } from './Web3Connector';
-import { TokenContext, WalletContext } from './WalletConnector';
+import { TokenContext, WalletContext, Web3Context } from './context/context';
 
 import { PLATFORM_TO_ID, DURATION_CHOICES, METRIC_TO_ID } from '../config/config';
 
@@ -17,18 +16,18 @@ import { PLATFORM_TO_ID, DURATION_CHOICES, METRIC_TO_ID } from '../config/config
 
 export const CreateTask = () => {
   // console.log('rendering', 'Create')
-  const [platform, setPlatform] = useState('0');
+  const [platform, setPlatform] = useState('Twitter');
   const [promoter, setPromoterAddress] = useState('');
   const [promoterUserId, setPromoterUserId] = useState('');
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
   const [depositAmount, setDepositAmount] = useState('0');
   const [startDate, setStartDate] = useState(new Date().getTime());
   const [endDate, setEndDate] = useState(new Date().getTime() + DURATION_CHOICES['One Week']);
-  const [metric, setMetric] = useState('0');
+  const [metric, setMetric] = useState('Time');
   const [vestingTerm, setVestingTerm] = useState(0);
   const [linearRate, setLinearRate] = useState(true);
   const [message, setMessage] = useState('');
-  const [data, setData] = useState({ platform: '0', userId: '0', metric: '0', messageHash: '0' });
+  const [data, setData] = useState({ platform: 'Twitter', userId: '0', metric: 'Time', messageHash: '0' });
 
   const [touched, setTouched] = useState({});
   const isTouched = (key) => Object.keys(touched).includes(key);
@@ -263,8 +262,8 @@ export const CreateTask = () => {
             ))}
           </DTextField>
           <Checkbox checked={linearRate} onChange={({ target }) => setLinearRate(target.checked)} />
-          <span>Linear Rate</span>
-          {/* Linear Rate */}
+          {/* <span>Linear Rate</span> */}
+          Linear Rate
         </DStackRow>
         <DTextField
           multiline

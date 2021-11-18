@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 
 import { ethers } from 'ethers';
 
-import { Web3Context } from './Web3Connector';
+import { Web3Context } from './context/context';
 
 // ================== Contract Infos ====================
 
