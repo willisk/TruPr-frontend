@@ -1,6 +1,7 @@
 import './App.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Web3Connector, TaskConnector, WalletConnector, TokenConnector } from './components/context/context';
+import { Web3Connector, WalletConnector, TokenConnector } from './components/context/context';
+import { TaskConnector, TaskContext } from './components/context/TaskContext';
 import Home from './components/Home';
 
 const theme = createTheme({

@@ -16,7 +16,7 @@ export const TaskConnector = ({ children }) => {
   // const { walletAddress } = useContext(WalletContext);
 
   const updateTasks = () => {
-    console.log('calling updateTasks');
+    // console.log('calling updateTasks');
     // updateTaskCount();
     contract
       .getAllTasks()
@@ -31,13 +31,11 @@ export const TaskConnector = ({ children }) => {
             // task.state = getTaskState(task);
           };
         });
-        console.log('Setting', _tasks);
-        setTasks((t) => [...t, _tasks]);
+        // console.log('Setting', _tasks);
+        setTasks(_tasks);
       })
       .catch(console.error);
   };
-
-  console.log('TaskContext tasks', tasks);
 
   useMemo(() => {
     // console.log('calling init Tasks');
@@ -50,5 +48,5 @@ export const TaskConnector = ({ children }) => {
     updateTasks: updateTasks,
   };
 
-  return <TaskConnector.Provider value={context}>{children}</TaskConnector.Provider>;
+  return <TaskContext.Provider value={context}>{children}</TaskContext.Provider>;
 };

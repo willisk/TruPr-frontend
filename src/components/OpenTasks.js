@@ -34,7 +34,7 @@ export const OpenTasks = () => {
   console.log('OpenTasks tasks', tasks);
 
   const taskEntries = () => {
-    if (!tasks) return;
+    if (!tasks?.length) return null;
     let entries = tasks;
     if (!viewAll) entries = entries.filter((task) => task.address === 0 || task.address === walletAddress);
 
