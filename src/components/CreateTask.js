@@ -261,9 +261,11 @@ export const CreateTask = () => {
               </MenuItem>
             ))}
           </DTextField>
-          <Checkbox checked={linearRate} onChange={({ target }) => setLinearRate(target.checked)} />
-          {/* <span>Linear Rate</span> */}
-          Linear Rate
+          <div>
+            <Checkbox checked={linearRate} onChange={({ target }) => setLinearRate(target.checked)} />
+            {/* <span>Linear Rate</span> */}
+            Linear Rate
+          </div>
         </DStackRow>
         <DTextField
           multiline
