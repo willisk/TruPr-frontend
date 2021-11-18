@@ -31,7 +31,7 @@ export const OpenTasks = () => {
   // };
 
   // useEffect(updateTasks, [taskCount]);
-  console.log('OpenTasks tasks', tasks);
+  // console.log('OpenTasks tasks', tasks);
 
   const taskEntries = () => {
     if (!tasks?.length) return null;
