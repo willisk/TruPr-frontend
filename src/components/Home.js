@@ -1,5 +1,4 @@
 // import { Link } from '@mui/material';
-import { WalletConnectButton } from './context/WalletContext';
 import { ContractVitals } from './Dashboard';
 import { CreateTask } from './CreateTask';
 import { OpenTasks } from './OpenTasks';

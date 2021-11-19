@@ -6,11 +6,9 @@ import { useState } from 'react';
 import Address from './Address/Address';
 
 const Profile = () => {
-  return (
-    <div>
-      <div></div>
-    </div>
-  );
+  const { setUserData, userError, isUserUpdating, user } = useMoralis();
+
+  return <div>Nothing here for now</div>;
 };
 
 export default Profile;
