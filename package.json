@@ -15,9 +15,12 @@
     "axios": "^0.21.1",
     "date-fns": "^2.25.0",
     "ethers": "^5.4.7",
+    "moralis": "^0.0.134",
     "react": "^17.0.2",
+    "react-blockies": "^1.4.1",
     "react-countdown": "^2.3.2",
     "react-dom": "^17.0.2",
+    "react-moralis": "^0.3.0",
     "react-router-dom": "^6.0.2",
     "react-scripts": "4.0.3",
     "styled-components": "^5.3.1",
@@ -49,6 +52,6 @@
     ]
   },
   "devDependencies": {
-    "dotenv": "^8.6.0"
+    "dotenv": "^10.0.0"
   }
 }
