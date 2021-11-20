@@ -23,6 +23,8 @@ export const Task = ({ task, taskId, detailedTaskView }) => {
     const fulfillTask = (id) => {
       signContract.fulfillTask(id).then(handleTx).then(updateTasks).catch(handleTxError);
     };
+
+    console.log(task)
   
     const isPublic = task.promoter === 0;
     const now = new Date().getTime() / 1000;

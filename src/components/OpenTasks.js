@@ -1,8 +1,11 @@
 import React from 'react';
 import { useState, useContext } from 'react';
 import { Checkbox } from '@mui/material';
-import Input from '@mui/material/Input';
 import { DTextField } from '../config/defaults';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 import { TaskContext, WalletContext } from './context/context';
 
@@ -19,11 +22,13 @@ export const OpenTasks = () => {
   const { walletAddress } = useContext(WalletContext);
   const { tasks } = useContext(TaskContext);
   const [search, setSearch] = useState('');
+  const [ sort, setSort ] = useState('');
 
   const taskEntries = () => {
     if (!tasks?.length) return null;
     entries = tasks;
     if (search !== '') entries = doFilterByText(entries, search)
+    if (sort !== '') entries = doFilterBySort(entries, sort)
     if (!viewAll) entries = entries.filter((task) => task.address === 0 || task.address === walletAddress);
 
     return entries.map((task, id) => (
@@ -39,12 +44,37 @@ export const OpenTasks = () => {
     })
   }
 
+  const doFilterBySort = (tasks, search) => {
+    if (search === 'createdat_down') {
+      return tasks.sort((a,b) => (a.startDate > b.startDate) ? 1 : ((b.startDate > a.startDate) ? -1 : 0))
+    } else if (search === 'createdat_up') {
+      return tasks.sort((a,b) => (a.startDate < b.startDate) ? 1 : ((b.startDate < a.startDate) ? -1 : 0))
+    }
+  }
+
   return (
     <div>
       <div>
         <Checkbox checked={viewAll} onChange={(event) => setViewAll(event.target.checked)} />
         View all tasks
       </div>
+      <FormControl>
+        <InputLabel id="task-sort-label">Sort by</InputLabel>
+        <Select
+          labelId="task-sort-label"
+          id="task-sort-select"
+          value={sort}
+          label="Sort by"
+          onChange={({ target }) => {
+            setSort(target.value);
+            taskEntries()
+            doFilterBySort(entries, target.value)
+          }}
+        >
+          <MenuItem value='createdat_down'>Created ASC</MenuItem>
+          <MenuItem value='createdat_up'>Created DESC</MenuItem>
+        </Select>
+      </FormControl>
       <div>
         <DTextField
           label="Search"
