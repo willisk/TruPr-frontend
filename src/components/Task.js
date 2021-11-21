@@ -26,7 +26,8 @@ export const Task = ({ task, taskId, detailedTaskView }) => {
   // console.log(task);
 
   const isPublic = task.promoter === 0;
-  const now = new Date().getTime() / 1000;
+  const now = new Date().getTime();
+  // console.log(task.startDate < now, now < task.endDate, isPublic || walletAddress === task.promoter, task.status == 1);
 
   return (
     <DStackColumn style={{ position: 'relative' }}>
