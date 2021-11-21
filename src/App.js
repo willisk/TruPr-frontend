@@ -8,10 +8,10 @@ import { useEffect } from 'react';
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
-    primary: {
-      main: '#dfe1ef',
-    },
+    // mode: 'dark',
+    // primary: {
+    //   main: '#dfe1ef',
+    // },
     // secondary: {
     //   // main: '#481c07',
     //   main: '#fff',
