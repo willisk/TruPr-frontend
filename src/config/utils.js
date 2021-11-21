@@ -32,8 +32,8 @@ export const formatDuration = (delta) => {
 export const dateDiffInDays = (task) => {
   let prefix = '';
   let suffix = '';
-  const a = new Date(task.startDate * 1000);
-  const b = new Date(task.endDate * 1000);
+  const a = new Date(task.startDate);
+  const b = new Date(task.endDate);
   const c = new Date();
   if (new Date() > b) {
     return '-';
@@ -61,9 +61,7 @@ export const dateDiffInDays = (task) => {
 
 export const getProgressValue = (task) => {
   const val = Math.round(
-    ((new Date() - new Date(task.startDate * 1000)) /
-      (new Date(task.endDate * 1000) - new Date(task.startDate * 1000))) *
-      100
+    ((new Date() - new Date(task.startDate)) / (new Date(task.endDate) - new Date(task.startDate))) * 100
   );
   return val > 100 ? 100 : val;
 };
@@ -88,7 +86,7 @@ export const getReadableDate = (d) => {
 
 export const getTaskState = (task) => {
   if (task.status === 0) return 'Cancelled';
-  if (task.status === 1 && task.startDate * 1000 <= new Date().getTime() && new Date().getTime() < task.endDate * 1000)
-    return 'Open';
-  return 'Closed';
+  if (new Date().getTime() < task.endDate) return 'Open';
+  if (task.balance === 0) return 'Finished';
+  return 'Expired';
 };
