@@ -7,6 +7,8 @@ import Chains from './Chains/Chains';
 import Account from './Account';
 import Profile from './Profile';
 
+import { useMoralis } from 'react-moralis';
+
 import { ReactComponent as TwitterLogo } from '../images/twitter.svg';
 import { ReactComponent as DiscordLogo } from '../images/discord.svg';
 // import { ReactComponent as OpenseaLogo } from '../images/opensea.svg';
@@ -41,6 +43,7 @@ const Socials = () => (
 
 const Home = () => {
   const [tab, setTab] = useState(window.location?.pathname || '/');
+  const { isAuthenticated } = useMoralis();
 
   const handleChange = (event, newTab) => {
     setTab(newTab);
@@ -61,7 +64,9 @@ const Home = () => {
                 <Tab label="Dashboard" component={Link} value={'/'} to={'/'} />
                 <Tab label="Open Tasks" component={Link} value={'/open-tasks'} to={'/open-tasks'} />
                 <Tab label="Create Task" component={Link} value={'/create-task'} to={'/create-task'} />
-                <Tab label="Edit profile" component={Link} value={'/my-profile'} to={'/my-profile'} />
+                {isAuthenticated && (
+                  <Tab label="Edit profile" component={Link} value={'/my-profile'} to={'/my-profile'} />
+                )}
               </Tabs>
             </Grid>
             <Chains />

@@ -3,6 +3,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Web3Connector, WalletConnector, TokenConnector } from './components/context/context';
 import { TaskConnector, TaskContext } from './components/context/TaskContext';
 import Home from './components/Home';
+import { useMoralis } from 'react-moralis';
+import { useEffect } from 'react';
 
 const theme = createTheme({
   palette: {
@@ -18,6 +20,13 @@ const theme = createTheme({
 });
 
 function App() {
+  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } = useMoralis();
+
+  useEffect(() => {
+    if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isWeb3Enabled]);
+
   return (
     <ThemeProvider theme={theme}>
       <Web3Connector>

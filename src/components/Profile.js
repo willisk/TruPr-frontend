@@ -2,7 +2,7 @@ import { useMoralisDapp } from '../providers/MoralisDappProvider/MoralisDappProv
 import { useMoralis } from 'react-moralis';
 import { getEllipsisTxt } from '../helpers/formatters';
 import Blockie from './Blockie';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Address from './Address/Address';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -11,9 +11,18 @@ import { TextField } from '@mui/material';
 import Button from '@mui/material/Button';
 
 const Profile = () => {
-  const { setUserData, userError, isUserUpdating, user, isAuthUndefined } = useMoralis();
+  const { refetchUserData, setUserData, userError, isUserUpdating, user, isAuthUndefined, isAuthenticated } =
+    useMoralis();
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+
+  useEffect(() => {
+    if (!isAuthUndefined && isAuthenticated) {
+      refetchUserData();
+    }
+
+    console.log(user.attributes);
+  }, [username, bio]);
 
   if (isAuthUndefined) {
     return <div>loading</div>;

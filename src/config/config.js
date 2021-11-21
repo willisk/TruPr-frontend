@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { reverseLookup } from './utils';
+import { useMoralis } from 'react-moralis';
 
 const { abi: ERC20ABI } = require('../contracts/ERC20.json');
 export const contractABI = require('../contracts/TruPr.json').abi;
@@ -9,9 +10,9 @@ export const contractABI = require('../contracts/TruPr.json').abi;
 // export const VALID_CHAIN_IDS = ['42', '4'];
 export const VALID_CHAIN_IDS = ['42'];
 
-const contractAddressKovan = '0x0ACd7d1e59e9c57bAd5f095AB475f342f784b1E0';
-const mockToken1Kovan = '0x3407064ee2Cf92754B4273bF576Ac61c7d21B47D';
-const mockToken2Kovan = '0x08DEb34ff567021E037ed511235D6F4e3137f8AB';
+const contractAddressKovan = '0xdcb7Df7eB970607f6018D2bA27Bc14eF83B6AAE0';
+const mockToken1Kovan = '0x22d7f25D0B6d5892c8Cd6A5ef50cd90378E105Fc';
+const mockToken2Kovan = '0x73FcE30e3c80C973241359E73DdAAffDe42BA685';
 
 const contractAddress = {
   rinkeby: '0xD22460D669B37b90fB5b1bC1855b2E43084CFb3D',

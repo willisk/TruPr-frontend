@@ -1,7 +1,11 @@
 import React from 'react';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Stack, Checkbox, MenuItem, Button } from '@mui/material';
 import { DStackColumn, DTextField, DTextFieldInfo, DDateTimePicker, DStackRow } from '../config/defaults';
+import TruPrContract from '../contracts/TruPr.json';
+import tokenContract from '../contracts/ERC20.json';
+import { useNewMoralisObject, useMoralis, useMoralisQuery } from 'react-moralis';
+import Moralis from 'moralis';
 
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -15,6 +19,9 @@ import { PLATFORM_TO_ID, DURATION_CHOICES, METRIC_TO_ID } from '../config/config
 // ================== Create Task ====================
 
 export const CreateTask = () => {
+  const { isSaving, error, save } = useNewMoralisObject('Task');
+  const { refetchUserData, setUserData, userError, isUserUpdating, user, isAuthUndefined } = useMoralis();
+
   // console.log('rendering', 'Create')
   const [platform, setPlatform] = useState('Twitter');
   const [promoter, setPromoterAddress] = useState('');
@@ -27,6 +34,8 @@ export const CreateTask = () => {
   const [vestingTerm, setVestingTerm] = useState(0);
   const [linearRate, setLinearRate] = useState(true);
   const [message, setMessage] = useState('');
+  const [xticks, setXticks] = useState([]);
+  const [yticks, setYticks] = useState([]);
   const [data, setData] = useState({ platform: 'Twitter', userId: '0', metric: 'Time', messageHash: '0' });
 
   const [touched, setTouched] = useState({});
@@ -38,6 +47,10 @@ export const CreateTask = () => {
 
   // const handleTx = handleTxWrapper(() => {});
   const token = tokenWhitelist[tokenSymbol];
+
+  if (isAuthUndefined) {
+    return <div>loading</div>;
+  }
 
   const updateMessage = (msg) => {
     setMessage(msg);
@@ -81,7 +94,7 @@ export const CreateTask = () => {
   const isValidTask = () => {
     return (
       isValidAddress(promoter) &&
-      isPositiveInt(promoterUserId) &&
+      //isPositiveInt(promoterUserId) &&
       // isValidAddress(tokenAddress) &&
       isPositiveInt(depositAmount) &&
       // isValidStartDate() &&
@@ -100,7 +113,7 @@ export const CreateTask = () => {
       .catch(handleTxError);
   };
 
-  const createTask = () => {
+  const createTask = async () => {
     const task = {
       // platform: platform,
       promoter: promoter,
@@ -137,6 +150,23 @@ export const CreateTask = () => {
       )
       .then(handleTx)
       .catch(handleTxError);
+
+    save({
+      status: 0,
+      platform: platform,
+      sponsor: user,
+      sponsorAddress: user.attributes.ethAddress,
+      promoterId: promoterUserId,
+      promoterAddress: promoter,
+      token: token.address,
+      depositAmount: depositAmount,
+      startDate: startDate,
+      endDate: endDate,
+      cliff: vestingTerm,
+      linearRate: linearRate,
+      xticks: [100],
+      yticks: [depositAmount],
+    });
   };
 
   return (
@@ -285,7 +315,11 @@ export const CreateTask = () => {
               Approve Token
             </Button>
           )}
-          <Button disabled={!isValidTask() || !tokenApprovals[tokenSymbol]} variant="contained" onClick={createTask}>
+          <Button
+            disabled={!isValidTask() || !tokenApprovals[tokenSymbol] || isSaving}
+            variant="contained"
+            onClick={createTask}
+          >
             Create
           </Button>
         </Stack>
