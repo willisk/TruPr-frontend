@@ -1,8 +1,13 @@
 // import { Link } from '@mui/material';
-import { WalletConnectButton } from './context/WalletContext';
 import { ContractVitals } from './Dashboard';
 import { CreateTask } from './CreateTask';
 import { OpenTasks } from './OpenTasks';
+
+import Chains from './Chains/Chains';
+import Account from './Account';
+import Profile from './Profile';
+
+import { useMoralis } from 'react-moralis';
 
 import { ReactComponent as TwitterLogo } from '../images/twitter.svg';
 import { ReactComponent as DiscordLogo } from '../images/discord.svg';
@@ -18,7 +23,6 @@ import { useState, Fragment } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { Grid } from '@mui/material';
-import { NetworkButton } from './context/context';
 
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
@@ -55,6 +59,7 @@ const drawerWidth = 220;
 
 const Home = (props) => {
   const [tab, setTab] = useState(window.location?.pathname || '/');
+  const { isAuthenticated } = useMoralis();
 
   const handleChange = (event, newTab) => {
     setTab(newTab);
@@ -95,10 +100,13 @@ const Home = (props) => {
                 <Tab label="Dashboard" component={Link} value={'/'} to={'/'} />
                 <Tab label="Open Tasks" component={Link} value={'/open-tasks'} to={'/open-tasks'} />
                 <Tab label="Create Task" component={Link} value={'/create-task'} to={'/create-task'} />
+                {isAuthenticated && (
+                  <Tab label="Edit profile" component={Link} value={'/my-profile'} to={'/my-profile'} />
+                )}
               </Tabs>
             </Grid>
-            <NetworkButton />
-            <WalletConnectButton />
+            <Chains />
+            <Account />
           </Grid>
 
           {/* <AppBar
@@ -156,6 +164,7 @@ const Home = (props) => {
               <Route path="/" element={<ContractVitals />} />
               <Route path="/open-tasks" element={<OpenTasks />} />
               <Route path="/create-task" element={<CreateTask />} />
+              <Route path="/my-profile" element={<Profile />} />
             </Routes>
           </Box>
           <Grid

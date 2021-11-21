@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import {
   Stack,
   Checkbox,
@@ -15,6 +15,10 @@ import {
   TableCell,
 } from '@mui/material';
 import { DStackColumn, DTextField, DTextFieldInfo, DDateTimePicker, DStackRow } from '../config/defaults';
+import TruPrContract from '../contracts/TruPr.json';
+import tokenContract from '../contracts/ERC20.json';
+import { useNewMoralisObject, useMoralis, useMoralisQuery } from 'react-moralis';
+import Moralis from 'moralis';
 
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -37,6 +41,9 @@ const steps = ['Task Details', 'Rewards', 'Finalize'];
 // ================== Create Task ====================
 
 export const CreateTask = () => {
+  const { isSaving, error, save } = useNewMoralisObject('Task');
+  const { refetchUserData, setUserData, userError, isUserUpdating, user, isAuthUndefined } = useMoralis();
+
   // console.log('rendering', 'Create')
   const [activeStep, setActiveStep] = useState(0);
 
@@ -53,6 +60,8 @@ export const CreateTask = () => {
   const [metric, setMetric] = useState('Time');
   const [cliffPeriod, setCliffPeriod] = useState(0);
   const [linearRate, setLinearRate] = useState(true);
+  const [xticks, setXticks] = useState([]);
+  const [yticks, setYticks] = useState([]);
 
   const [touched, setTouched] = useState({});
   const isTouched = (key) => Object.keys(touched).includes(key);
@@ -70,6 +79,10 @@ export const CreateTask = () => {
     metric: metric,
     messageHash: ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [message.trim()])),
   });
+
+  if (isAuthUndefined) {
+    return <div>loading</div>;
+  }
 
   // parsing functions
 
@@ -159,6 +172,23 @@ export const CreateTask = () => {
       )
       .then(handleTx)
       .catch(handleTxError);
+
+    save({
+      status: 0,
+      platform: platform,
+      sponsor: user,
+      sponsorAddress: user.attributes.ethAddress,
+      promoterId: promoterUserId,
+      promoterAddress: promoter,
+      token: token.address,
+      depositAmount: depositAmount,
+      startDate: startDate,
+      endDate: endDate,
+      cliff: cliffPeriod,
+      linearRate: linearRate,
+      xticks: [100],
+      yticks: [depositAmount],
+    });
   };
 
   const touch = (key) => {

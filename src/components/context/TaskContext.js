@@ -19,9 +19,9 @@ export const TaskConnector = ({ children }) => {
     // console.log('calling updateTasks');
     // updateTaskCount();
     contract
-      .getAllTasks()
-      .then((_tasks) => {
-        _tasks = _tasks.map((task) => {
+      .getAllTaskAndState()
+      .then((_tasks, _pendingRevokeTime) => {
+        _tasks = _tasks[0].map((task) => {
           // console.log('parsing', task);
           return {
             ...task,
@@ -31,7 +31,7 @@ export const TaskConnector = ({ children }) => {
             // task.state = getTaskState(task);
           };
         });
-        // console.log('Setting', _tasks);
+
         setTasks(_tasks);
       })
       .catch(console.error);
