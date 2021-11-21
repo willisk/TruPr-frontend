@@ -54,37 +54,43 @@ export const OpenTasks = () => {
 
   return (
     <div>
-      <div>
-        <Checkbox checked={viewAll} onChange={(event) => setViewAll(event.target.checked)} />
-        View all tasks
-      </div>
-      <FormControl>
-        <InputLabel id="task-sort-label">Sort by</InputLabel>
-        <Select
-          labelId="task-sort-label"
-          id="task-sort-select"
-          value={sort}
-          label="Sort by"
-          onChange={({ target }) => {
-            setSort(target.value);
-            taskEntries()
-            doFilterBySort(entries, target.value)
-          }}
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}
+      >
+        <div>
+          <Checkbox checked={viewAll} onChange={(event) => setViewAll(event.target.checked)} />
+          View all tasks
+        </div>
+        <FormControl
+          style={{width: '150px'}}
         >
-          <MenuItem value='createdat_down'>Created ASC</MenuItem>
-          <MenuItem value='createdat_up'>Created DESC</MenuItem>
-        </Select>
-      </FormControl>
-      <div>
-        <DTextField
-          label="Search"
-          value={search}
-          onChange={({ target }) => {
-            setSearch(target.value);
-            taskEntries()
-            doFilterByText(entries, target.value)
-          }}
-        />
+          <InputLabel id="task-sort-label">Sort by</InputLabel>
+          <Select
+            labelId="task-sort-label"
+            id="task-sort-select"
+            value={sort}
+            label="Sort by"
+            onChange={({ target }) => {
+              setSort(target.value);
+              taskEntries()
+              doFilterBySort(entries, target.value)
+            }}
+          >
+            <MenuItem value='createdat_down'>Created ASC</MenuItem>
+            <MenuItem value='createdat_up'>Created DESC</MenuItem>
+          </Select>
+        </FormControl>
+        <div>
+          <DTextField
+            label="Search"
+            value={search}
+            onChange={({ target }) => {
+              setSearch(target.value);
+              taskEntries()
+              doFilterByText(entries, target.value)
+            }}
+          />
+        </div>
       </div>
       <h2>Open Tasks</h2>
       <Box sx={{ flexGrow: 1 }}>
