@@ -24,26 +24,30 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { Grid } from '@mui/material';
 
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
-import MenuIcon from '@mui/icons-material/Menu';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+
+// import * as React from 'react';
+// import AppBar from '@mui/material/AppBar';
+// import Divider from '@mui/material/Divider';
+// import Drawer from '@mui/material/Drawer';
+// import IconButton from '@mui/material/IconButton';
+// import InboxIcon from '@mui/icons-material/MoveToInbox';
+// import List from '@mui/material/List';
+// import ListItem from '@mui/material/ListItem';
+// import ListItemIcon from '@mui/material/ListItemIcon';
+// import ListItemText from '@mui/material/ListItemText';
+// import MailIcon from '@mui/icons-material/Mail';
+// import MenuIcon from '@mui/icons-material/Menu';
+// import Toolbar from '@mui/material/Toolbar';
+// import Typography from '@mui/material/Typography';
+
+import { ReactComponent as TruPrLogo } from '../images/trupr.svg';
+import { Task } from './Task';
 
 const Socials = () => (
   <div className="socials">
     <Button variant="text" href="" target="_blank" rel="noreferrer" style={{ minWidth: 45 }}>
-      <TwitterLogo style={{ height: 24, width: 20, fill: 'red' }} />
+      <TwitterLogo style={{ height: 24, width: 20 }} />
     </Button>
     <Button variant="text" href="" target="_blank" rel="noreferrer" style={{ minWidth: 45 }}>
       <DiscordLogo style={{ height: 24, width: 20 }} />
@@ -64,26 +68,26 @@ const Home = (props) => {
   const handleChange = (event, newTab) => {
     setTab(newTab);
   };
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const container = props.window !== undefined ? () => props.window().document.body : undefined;
+  // const [mobileOpen, setMobileOpen] = React.useState(false);
+  // const container = props.window !== undefined ? () => props.window().document.body : undefined;
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  // const handleDrawerToggle = () => {
+  //   setMobileOpen(!mobileOpen);
+  // };
 
-  const drawer = (
-    <div>
-      <Toolbar />
-      <Divider />
-      <List>
-        {['Dashboard', 'Open Tasks', 'Create Task'].map((text, index) => (
-          <ListItem button key={text} onClick={() => setTab(index)}>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-    </div>
-  );
+  // const drawer = (
+  //   <div>
+  //     <Toolbar />
+  //     <Divider />
+  //     <List>
+  //       {['Dashboard', 'Open Tasks', 'Create Task'].map((text, index) => (
+  //         <ListItem button key={text} onClick={() => setTab(index)}>
+  //           <ListItemText primary={text} />
+  //         </ListItem>
+  //       ))}
+  //     </List>
+  //   </div>
+  // );
 
   return (
     <div className="app">
@@ -93,8 +97,11 @@ const Home = (props) => {
             container
             className="header"
             alignItems="center"
-            sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.default' }}
+            sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'paper' }}
           >
+            <div style={{ padding: '0 1em' }}>
+              <TruPrLogo />
+            </div>
             <Grid item sx={{ flexGrow: 1 }}>
               <Tabs value={tab} onChange={handleChange}>
                 <Tab label="Dashboard" component={Link} value={'/'} to={'/'} />
@@ -160,11 +167,13 @@ const Home = (props) => {
           </Box> */}
 
           <Box component="main" className="background" sx={{ flexGrow: 1, p: 3 }}>
+            {/* <div className="solar"></div> */}
             <Routes>
               <Route path="/" element={<ContractVitals />} />
               <Route path="/open-tasks" element={<OpenTasks />} />
               <Route path="/create-task" element={<CreateTask />} />
               <Route path="/my-profile" element={<Profile />} />
+              <Route path="/task/:id" component={Task} />
             </Routes>
           </Box>
           <Grid

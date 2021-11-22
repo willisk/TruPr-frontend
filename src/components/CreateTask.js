@@ -42,7 +42,8 @@ const steps = ['Task Details', 'Rewards', 'Finalize'];
 
 export const CreateTask = () => {
   const { isSaving, error, save } = useNewMoralisObject('Task');
-  const { refetchUserData, setUserData, userError, isUserUpdating, user, isAuthUndefined } = useMoralis();
+  const { refetchUserData, setUserData, userError, isUserUpdating, walletAddress, user, isAuthUndefined } =
+    useMoralis();
 
   // console.log('rendering', 'Create')
   const [activeStep, setActiveStep] = useState(0);
@@ -103,6 +104,10 @@ export const CreateTask = () => {
     return message !== '';
   };
 
+  const isValidPromoter = (promoter) => {
+    return isValidAddress(promoter) && promoter !== walletAddress;
+  };
+
   const isValidStartDate = () => {
     return new Date() <= startDate;
   };
@@ -121,7 +126,7 @@ export const CreateTask = () => {
 
   const stepIsComplete = (step) => {
     return (
-      (step === 0 && (isPublic || (isValidAddress(promoter) && isPositiveInt(promoterUserId))) && isValidMessage()) ||
+      (step === 0 && (isPublic || (isValidPromoter() && isPositiveInt(promoterUserId))) && isValidMessage()) ||
       (step === 1 &&
         // isValidStartDate() &&
         isValidEndDate() &&
@@ -254,8 +259,14 @@ export const CreateTask = () => {
                 <DTextField
                   label="Promoter Address"
                   value={promoter}
-                  error={isTouched('promoter') && !isValidAddress(promoter)}
-                  helperText={isTouched('promoter') && !isValidAddress(promoter) && 'Enter a valid address'}
+                  error={isTouched('promoter') && !isValidPromoter()}
+                  helperText={
+                    isTouched('promoter') &&
+                    !(
+                      (isValidAddress(promoter) && 'Enter a valid address') ||
+                      (promoter === walletAddress && 'Address must be differ from wallet address')
+                    )
+                  }
                   onChange={({ target }) => {
                     touch('promoter');
                     setPromoterAddress(target.value);

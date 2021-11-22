@@ -8,15 +8,25 @@ import { useEffect } from 'react';
 
 const theme = createTheme({
   palette: {
-    // mode: 'dark',
-    // primary: {
-    //   main: '#dfe1ef',
-    // },
-    // secondary: {
-    //   // main: '#481c07',
-    //   main: '#fff',
-    // },
+    type: 'light',
+    primary: {
+      main: '#8860d0',
+      // main: '#f7f7f7',
+    },
+    secondary: {
+      main: '#e4bb00',
+    },
   },
+  // palette: {
+  //   // mode: 'dark',
+  //   // primary: {
+  //   //   main: '#dfe1ef',
+  //   // },
+  //   // secondary: {
+  //   //   // main: '#481c07',
+  //   //   main: '#fff',
+  //   // },
+  // },
 });
 
 function App() {

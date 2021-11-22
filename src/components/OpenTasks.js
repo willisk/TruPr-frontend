@@ -14,7 +14,17 @@ import Grid from '@mui/material/Grid';
 
 import { Task } from './Task';
 
-let entries = null
+const doFilterByText = (tasks, search) => {
+  return tasks.filter((task) => task.data.includes(search));
+};
+
+const doFilterBySort = (tasks, search) => {
+  if (search === 'createdat_down') {
+    return tasks.sort((a, b) => (a.startDate > b.startDate ? 1 : b.startDate > a.startDate ? -1 : 0));
+  } else if (search === 'createdat_up') {
+    return tasks.sort((a, b) => (a.startDate < b.startDate ? 1 : b.startDate < a.startDate ? -1 : 0));
+  }
+};
 
 export const OpenTasks = () => {
   const [viewAll, setViewAll] = useState(true);
@@ -22,48 +32,24 @@ export const OpenTasks = () => {
   const { walletAddress } = useContext(WalletContext);
   const { tasks } = useContext(TaskContext);
   const [search, setSearch] = useState('');
-  const [ sort, setSort ] = useState('');
+  const [sort, setSort] = useState('');
 
-  const taskEntries = () => {
-    if (!tasks?.length) return null;
-    entries = tasks;
-    if (search !== '') entries = doFilterByText(entries, search)
-    if (sort !== '') entries = doFilterBySort(entries, sort)
-    if (!viewAll) entries = entries.filter((task) => task.address === 0 || task.address === walletAddress);
+  var filtered = tasks;
 
-    return entries.map((task, id) => (
-      <Grid item key={id} xs={12} md={6} lg={4}>
-        <Task task={task} taskId={id} detailedTaskView />
-      </Grid>
-    ));
-  };
-
-  const doFilterByText = (tasks, search) => {
-    return tasks.filter(function (item) {
-      return item.data.includes(search)
-    })
-  }
-
-  const doFilterBySort = (tasks, search) => {
-    if (search === 'createdat_down') {
-      return tasks.sort((a,b) => (a.startDate > b.startDate) ? 1 : ((b.startDate > a.startDate) ? -1 : 0))
-    } else if (search === 'createdat_up') {
-      return tasks.sort((a,b) => (a.startDate < b.startDate) ? 1 : ((b.startDate < a.startDate) ? -1 : 0))
-    }
+  if (tasks?.length) {
+    if (!viewAll) filtered = filtered.filter((task) => task.promoter === walletAddress);
+    if (search !== '') filtered = doFilterByText(filtered, search);
+    if (sort !== '') filtered = doFilterBySort(filtered, sort);
   }
 
   return (
     <div>
-      <div
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
         <div>
           <Checkbox checked={viewAll} onChange={(event) => setViewAll(event.target.checked)} />
           View all tasks
         </div>
-        <FormControl
-          style={{width: '150px'}}
-        >
+        <FormControl style={{ width: '150px' }}>
           <InputLabel id="task-sort-label">Sort by</InputLabel>
           <Select
             labelId="task-sort-label"
@@ -72,12 +58,10 @@ export const OpenTasks = () => {
             label="Sort by"
             onChange={({ target }) => {
               setSort(target.value);
-              taskEntries()
-              doFilterBySort(entries, target.value)
             }}
           >
-            <MenuItem value='createdat_down'>Created ASC</MenuItem>
-            <MenuItem value='createdat_up'>Created DESC</MenuItem>
+            <MenuItem value="createdat_down">Created ASC</MenuItem>
+            <MenuItem value="createdat_up">Created DESC</MenuItem>
           </Select>
         </FormControl>
         <div>
@@ -86,8 +70,6 @@ export const OpenTasks = () => {
             value={search}
             onChange={({ target }) => {
               setSearch(target.value);
-              taskEntries()
-              doFilterByText(entries, target.value)
             }}
           />
         </div>
@@ -95,7 +77,11 @@ export const OpenTasks = () => {
       <h2>Open Tasks</h2>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
-          {taskEntries()}
+          {filtered.map((task, id) => (
+            <Grid item key={id} xs={12} md={6} lg={4}>
+              <Task task={task} taskId={id} detailedTaskView />
+            </Grid>
+          ))}
         </Grid>
       </Box>
     </div>

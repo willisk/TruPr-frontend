@@ -111,8 +111,7 @@ function Chains() {
   return (
     <div>
       <FormControl fullWidth>
-        {
-          <Select displayEmpty renderValue={defaultValue} value={selected} onChange={handleClick}>
+          <Select style={{height:'3em'}} displayEmpty renderValue={defaultValue} value={selected} onChange={handleClick}>
             {menuItems.map((item) => (
               <MenuItem value={item.key} key={item.key} icon={item.icon} style={styles.item}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -122,7 +121,6 @@ function Chains() {
               </MenuItem>
             ))}
           </Select>
-        }
       </FormControl>
     </div>
   );

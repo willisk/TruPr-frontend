@@ -49,7 +49,7 @@ const StyledStackRow = styled(Stack)(({ theme }) => ({
 
 export const DStackColumn = (props) => (
   // <div className="glass-solid">
-  <StyledStack className="glass-solid" spacing={2} {...props} />
+  <StyledStack className="glass-solid" sx={{ background: 'white' }} spacing={2} {...props} />
   // </div>
 );
 
