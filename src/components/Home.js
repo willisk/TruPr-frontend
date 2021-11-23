@@ -12,7 +12,7 @@ import { useMoralis } from 'react-moralis';
 import { ReactComponent as TwitterLogo } from '../images/twitter.svg';
 import { ReactComponent as DiscordLogo } from '../images/discord.svg';
 // import { ReactComponent as OpenseaLogo } from '../images/opensea.svg';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
 // import { withRouter } from 'react-router';
 
 import Button from '@mui/material/Button';
@@ -42,6 +42,7 @@ import Box from '@mui/material/Box';
 // import Typography from '@mui/material/Typography';
 
 import { ReactComponent as TruPrLogo } from '../images/trupr.svg';
+import { DisplayTask } from './Task';
 // import { DisplayTask, Task } from './Task';
 
 const Socials = () => (
@@ -60,17 +61,6 @@ const Socials = () => (
   </div>
 );
 const drawerWidth = 220;
-
-const DisplayTask = () => {
-  console.log('renderingggg');
-  return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Fragment>
-        <div>asldfjlasdfjalsdkfjlsd</div>
-      </Fragment>
-    </Box>
-  );
-};
 
 const Home = (props) => {
   const [tab, setTab] = useState(window.location?.pathname || '/');
@@ -99,6 +89,7 @@ const Home = (props) => {
   //     </List>
   //   </div>
   // );
+  const renderFor404Routes = () => <div>404</div>;
 
   const validRoutes = ['/', '/open-tasks', '/create-task', '/profile'];
   return (
@@ -184,7 +175,8 @@ const Home = (props) => {
               <Route path="/open-tasks" element={<OpenTasks />} />
               <Route path="/create-task" element={<CreateTask />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/task" element={<DisplayTask />} />
+              <Route path="/task/:id" element={<DisplayTask />} />
+              <Route path="/" exactly element={<renderFor404Routes />} />
             </Routes>
           </Box>
           <Grid

@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { Twitter } from '@mui/icons-material';
 const icons = {
   Twitter: Twitter,
@@ -11,6 +12,26 @@ export const copyAddKeyValue = (obj, key, value) => {
   var objCopy = { ...obj };
   objCopy[key] = value;
   return objCopy;
+};
+
+export const isPositiveInt = (amt) => {
+  try {
+    return ethers.BigNumber.from(amt) > 0;
+  } catch (e) {
+    return false;
+  }
+};
+
+export const isValidAddress = (address) => {
+  try {
+    return ethers.utils.defaultAbiCoder.encode(['address'], [address]) !== ethers.constants.AddressZero;
+  } catch (e) {
+    return false;
+  }
+};
+
+export const shortenAddress = (address) => {
+  return address.slice(0, 6) + '...' + address.slice(36);
 };
 
 export const formatDuration = (delta) => {
@@ -33,41 +54,8 @@ export const taskTimeDeltaInfo = (task) => {
   const now = new Date().getTime();
   if (now <= task.startDate) return 'Starts in ' + formatDuration(task.startDate - now);
   if (task.endDate <= now) return 'Ended ' + formatDuration(now - task.endDate) + ' ago';
-  return formatDuration(now - task.startDate) + ' left';
+  return formatDuration(task.endDate - now) + ' left!';
 };
-
-export const dateDiffInDays = (task) => {
-  let prefix = '';
-  let suffix = '';
-  const a = new Date(task.startDate);
-  const b = new Date(task.endDate);
-  const now = new Date();
-
-  if (new Date() > b) {
-    return '-';
-  }
-
-  if (new Date() < a) {
-    prefix = 'Starts in ';
-    suffix = ' days';
-  } else {
-    suffix = ' days left';
-  }
-
-  // Discard the time and time-zone information.
-  const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-  const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-
-  let res = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
-
-  if (prefix !== '') {
-    res = Math.floor((utc1 - today) / (1000 * 60 * 60 * 24));
-  }
-
-  return prefix + res + suffix;
-};
-
 export const clamp = (num, min, max) => (num <= min ? min : num >= max ? max : num);
 
 export const getProgressValue = (task) => {

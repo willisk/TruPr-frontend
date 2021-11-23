@@ -33,16 +33,7 @@ export const LabelWith = ({ label, children, variant = 'subtle', placement = 'le
 
   const labelComponent = label && (
     <div style={divStyle}>
-      <Typography
-        // variant="h4"
-        sx={{
-          textAlign: 'left',
-          ...labelStyle,
-          // fontWeight: '400',
-        }}
-      >
-        {label}
-      </Typography>
+      <Typography sx={{ textAlign: 'left', ...labelStyle }}>{label}</Typography>
     </div>
   );
 

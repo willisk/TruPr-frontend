@@ -37,7 +37,7 @@ export const OpenTasks = () => {
   var filtered = tasks;
 
   if (tasks?.length) {
-    if (!viewAll) filtered = filtered.filter((task) => task.promoter === walletAddress);
+    if (!viewAll) filtered = filtered.filter((task) => task.promoter == 0 || task.promoter === walletAddress);
     if (search !== '') filtered = doFilterByText(filtered, search);
     if (sort !== '') filtered = doFilterBySort(filtered, sort);
   }
@@ -79,7 +79,7 @@ export const OpenTasks = () => {
         <Grid container spacing={2}>
           {filtered.map((task, id) => (
             <Grid item key={id} xs={12} md={6} lg={4}>
-              <Task task={task} taskId={id} detailed />
+              <Task task={task} taskId={id} />
             </Grid>
           ))}
         </Grid>

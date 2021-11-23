@@ -1,7 +1,7 @@
 import { Fragment, useContext, useState } from 'react';
 import { Button, LinearProgress, Chip, InputAdornment, Paper, Tooltip } from '@mui/material';
-import { DStackColumn, Row, DTextFieldInfo, LabelWith } from '../config/defaults';
-import { Link } from 'react-router-dom';
+import { DStackColumn, Row, DTextFieldInfo, LabelWith, DTextField } from '../config/defaults';
+import { Link, useParams } from 'react-router-dom';
 
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -11,32 +11,40 @@ import Typography from '@mui/material/Typography';
 import { LabelWithText } from '../config/defaults';
 
 import { TokenContext, TaskContext, WalletContext } from './context/context';
-import { clamp, getTaskState, taskTimeDeltaInfo } from '../config/utils';
+import { isPositiveInt, isValidAddress, shortenAddress, clamp, getTaskState, taskTimeDeltaInfo } from '../config/utils';
 
 import { getIcon, getProgressValue, dateDiffInDays, getReadableDate } from '../config/utils';
 import { Box } from '@mui/system';
 
-export const DisplayTask = ({ match }) => {
-  console.log('rendering TASK');
-  console.log(match);
-  return null;
+export const DisplayTask = () => {
+  const { id } = useParams();
+  const { tasks } = useContext(TaskContext);
+  if (!tasks.length) return null;
+  return <Task detailed task={tasks[id]} taskId={id} />;
 };
 
 export const Task = ({ task, taskId, detailed }) => {
   const { walletAddress, signContract, handleTx, handleTxError } = useContext(WalletContext);
   const { tokenWhitelistAddressToSymbol } = useContext(TokenContext);
   const { updateTasks } = useContext(TaskContext);
+  const [userId, setUserId] = useState('');
+  const [userIdTouched, setUserIdTouched] = useState(false);
 
-  const [promoterUserId, setPromoterUserId] = useState('');
+  const isPublic = task.promoter == 0;
+  const now = new Date().getTime();
+
+  const canFulfillTask =
+    isPositiveInt(userId) &&
+    task.startDate < now &&
+    now < task.endDate &&
+    (isPublic || walletAddress === task.promoter) &&
+    task.status === 1;
 
   const fulfillTask = (id) => {
     signContract.fulfillTask(id).then(handleTx).then(updateTasks).catch(handleTxError);
   };
-
   // console.log(task);
 
-  const isPublic = task.promoter === 0;
-  const now = new Date().getTime();
   // console.log(task.startDate < now, now < task.endDate, isPublic || walletAddress === task.promoter, task.status == 1);
 
   const progress = clamp(((now - task.startDate) / (task.endDate - task.startDate)) * 100, 0, 100);
@@ -45,73 +53,26 @@ export const Task = ({ task, taskId, detailed }) => {
   const description =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.';
 
-  const descriptionComp = detailed ? (
-    <Fragment>
-      <Row>
-        <Paper sx={{ padding: '1em' }}>
-          {/* <LabelWith placement="top" label="Description" text={descriptionShort}></LabelWith> */}
-          <LabelWith placement="top" label="Description">
-            <Typography style={{ textAlign: 'left' }}>{description.slice(0, 90) + ' ...'}</Typography>
-            <Button component={Link} to={'/task/' + taskId}>
-              view details
-            </Button>
-          </LabelWith>
-          {/* <LabelWithText placement="top" label="Description" text={descriptionShort} /> */}
-        </Paper>
-      </Row>
-      <Button
-        variant="contained"
-        onClick={() => fulfillTask(taskId, task)}
-        disabled={
-          !(
-            task.startDate < now &&
-            now < task.endDate &&
-            (isPublic || walletAddress === task.promoter) &&
-            task.status === 1
-          )
-        }
-      >
-        Fulfill Task
-      </Button>
-    </Fragment>
-  ) : (
-    <Fragment>
-      <Row>
-        <Paper sx={{ padding: '1em' }}>
-          <LabelWith placement="top" label="Description">
-            <Typography style={{ textAlign: 'left' }}>{description}</Typography>
-          </LabelWith>
-          {/* <LabelWithText placement="top" label="Description" text={description} /> */}
-        </Paper>
-      </Row>
-      <Button
-        variant="contained"
-        onClick={() => fulfillTask(taskId, task)}
-        disabled={
-          !(
-            task.startDate < now &&
-            now < task.endDate &&
-            (isPublic || walletAddress === task.promoter) &&
-            task.status === 1
-          )
-        }
-      >
-        Fulfill Task
-      </Button>
-    </Fragment>
-  );
-
   return (
     <DStackColumn style={{ position: 'relative' }}>
       <Row>
-        <LabelWithText text={'Task ' + taskId} />
+        <LabelWithText
+          // placement="right"
+          // text={'Task ' + taskId}
+          label={isPublic ? 'Public task' : 'For ' + shortenAddress(task.promoter)}
+          tooltip={!isPublic && task.promoter}
+        />
         {/* <Typography>Task {taskId}</Typography> */}
         {/* <h3 style={{ textAlign: 'left', marginTop: '0' }}>
           <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>Task {taskId}</span>{' '}
           <span style={{ position: 'absolute', right: '20px', top: '20px' }}>{getIcon('Twitter')}</span>
         </h3> */}
         <Row>
-          <LabelWithText label="Created by" text="Username#1237" />
+          <LabelWith label="Created by">
+            <Tooltip title={task.sponsor} placement="top">
+              <Typography>Username#1237</Typography>
+            </Tooltip>
+          </LabelWith>
           {getIcon('Twitter')}
         </Row>
       </Row>
@@ -123,7 +84,6 @@ export const Task = ({ task, taskId, detailed }) => {
         </LabelWith>
       </Row>
       {/* </div> */}
-      <LinearProgress variant="determinate" value={progress} />
       <Row>
         <Tooltip title={new Date(task.startDate).toString()} placement="top">
           <Box>
@@ -136,6 +96,7 @@ export const Task = ({ task, taskId, detailed }) => {
           </Box>
         </Tooltip>
       </Row>
+      <LinearProgress variant="determinate" value={progress} />
       <Row>
         <LabelWithText
           // placement="top"
@@ -143,11 +104,41 @@ export const Task = ({ task, taskId, detailed }) => {
           text={task.depositAmount.toString() + ' ' + tokenWhitelistAddressToSymbol[task.erc20Token].toString()}
         />
       </Row>
-      <Row>
-        <LabelWithText placement="top" label="Promoter address" text={task.promoter} />
-      </Row>
+      <h3>{'Task ' + taskId}</h3>
 
-      {descriptionComp}
+      <Row>
+        <Paper elevation={4} sx={{ padding: '1em' }}>
+          {/* <LabelWith placement="top" label="Description" text={descriptionShort}></LabelWith> */}
+          <LabelWith placement="top" label="Description">
+            <Typography style={{ textAlign: 'left' }}>
+              {detailed ? description : description.slice(0, 90) + ' ...'}
+            </Typography>
+            {!detailed && (
+              <Button component={Link} to={'/task/' + taskId}>
+                view details
+              </Button>
+            )}
+          </LabelWith>
+          {/* <LabelWithText placement="top" label="Description" text={descriptionShort} /> */}
+        </Paper>
+      </Row>
+      {detailed && (
+        <Fragment>
+          <DTextField
+            label="Twitter User Id"
+            value={userId}
+            error={userIdTouched && !isPositiveInt(userId)}
+            helperText={userIdTouched && !isPositiveInt(userId) && 'Enter a valid user id'}
+            onChange={({ target }) => {
+              setUserIdTouched(true);
+              setUserId(target.value);
+            }}
+          />
+          <Button variant="contained" onClick={() => fulfillTask(taskId, task)} disabled={!canFulfillTask}>
+            Fulfill Task
+          </Button>
+        </Fragment>
+      )}
     </DStackColumn>
   );
 };

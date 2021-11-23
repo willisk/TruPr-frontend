@@ -36,6 +36,8 @@ import StepButton from '@mui/material/StepButton';
 // import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
+import { isPositiveInt, isValidAddress } from '../config/utils';
+
 const steps = ['Task Details', 'Rewards', 'Finalize'];
 
 // ================== Create Task ====================
@@ -86,19 +88,6 @@ export const CreateTask = () => {
   }
 
   // parsing functions
-
-  const isPositiveInt = (amt) => {
-    const parsedAmt = parseInt(amt);
-    return parsedAmt.toString() === amt && !isNaN(parsedAmt) && parsedAmt > 0;
-  };
-
-  const isValidAddress = (address) => {
-    try {
-      return ethers.utils.defaultAbiCoder.encode(['address'], [address]) !== ethers.constants.AddressZero;
-    } catch (e) {
-      return false;
-    }
-  };
 
   const isValidMessage = () => {
     return message !== '';

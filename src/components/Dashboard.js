@@ -12,86 +12,43 @@ import Typography from '@mui/material/Typography';
 
 import { ethers } from 'ethers';
 
-import { Web3Context } from './context/context';
+import { TaskContext, WalletContext, Web3Context } from './context/context';
 
 // ================== Contract Infos ====================
 
 const MyTasks = () => {
+  const { tasks } = useContext(TaskContext);
+  const { walletAddress } = useContext(WalletContext);
+
+  const myTasks = tasks.filter((task) => task.promoter === walletAddress);
+
+  const myTasksComponent = myTasks.length ? (
+    <List sx={{ width: '100%', bgcolor: 'paper', overflow: 'auto', maxHeight: 300 }}>
+      {myTasks.map((task) => (
+        <ListItemText
+          primary="Task 0"
+          secondary={
+            <React.Fragment>
+              <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
+                Status: OPEN
+              </Typography>
+              {' — Maybe go to a detail page on click?'}
+            </React.Fragment>
+          }
+        >
+          <Divider variant="inset" component="li" />
+        </ListItemText>
+      ))}
+    </List>
+  ) : (
+    <div>No tasks yet.. look for open Tasks</div>
+  );
+
   return (
     <Grid item xs={12} md={6} lg={4}>
       <DStackColumn>
-        <h2>My open tasks</h2>
-        <List sx={{ width: '100%', bgcolor: 'background.paper', overflow: 'auto', maxHeight: 300 }}>
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: OPEN
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: OPEN
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: OPEN
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: OPEN
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: OPEN
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-        </List>
+        <h2>My Open Tasks</h2>
+        {myTasksComponent}
       </DStackColumn>
     </Grid>
   );
@@ -101,7 +58,7 @@ const MyPreviousTasks = () => {
   return (
     <Grid item xs={12} md={6} lg={4}>
       <DStackColumn>
-        <h2>My closed tasks</h2>
+        <h2>My Closed Tasks</h2>
         <List sx={{ width: '100%', bgcolor: 'background.paper', overflow: 'auto', maxHeight: 300 }}>
           <ListItem alignItems="flex-start">
             <ListItemText
