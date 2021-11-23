@@ -254,37 +254,33 @@ export const CreateTask = () => {
                 ))}
               </DTextField>
             </Label>
+            <div style={{ margin: 'auto' }}>
+              <Checkbox checked={isPublic} onChange={({ target }) => setIsPublic(target.checked)} />
+              Public
+            </div>
             <Label
               description="Enter the promoter's wallet address."
               tooltip="This is the address that will receive the tokens after the task has been fulfilled"
             >
-              <>
-                {/* <Row> */}
-                {isPublic ? (
-                  <DTextField label="Promoter Address" disabled value={''} />
-                ) : (
-                  <DTextField
-                    label="Promoter Address"
-                    value={promoter}
-                    error={isTouched('promoter') && !isValidPromoter()}
-                    helperText={
-                      isTouched('promoter') &&
-                      !(
-                        (isValidAddress(promoter) && 'Enter a valid address') ||
-                        (promoter === walletAddress && 'Address must be differ from wallet address')
-                      )
-                    }
-                    onChange={({ target }) => {
-                      touch('promoter');
-                      setPromoterAddress(target.value);
-                    }}
-                  />
-                )}
-                <div style={{ margin: 'auto' }}>
-                  <Checkbox checked={isPublic} onChange={({ target }) => setIsPublic(target.checked)} />
-                  Public
-                </div>
-              </>
+              {/* <Row> */}
+              {isPublic ? (
+                <DTextField label="Promoter Address" disabled value={''} />
+              ) : (
+                <DTextField
+                  label="Promoter Address"
+                  value={promoter}
+                  error={isTouched('promoter') && !isValidPromoter()}
+                  helperText={
+                    isTouched('promoter') &&
+                    ((!isValidAddress(promoter) && 'Enter a valid address') ||
+                      (promoter !== walletAddress && 'Address must be differ from wallet address'))
+                  }
+                  onChange={({ target }) => {
+                    touch('promoter');
+                    setPromoterAddress(target.value);
+                  }}
+                />
+              )}
               {/* </Row> */}
             </Label>
             <Label

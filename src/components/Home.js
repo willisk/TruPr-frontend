@@ -184,7 +184,7 @@ const Home = (props) => {
               <Route path="/open-tasks" element={<OpenTasks />} />
               <Route path="/create-task" element={<CreateTask />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/task" component={<DisplayTask />} />
+              <Route path="/task" element={<DisplayTask />} />
             </Routes>
           </Box>
           <Grid
