@@ -16,6 +16,8 @@ const theme = createTheme({
     secondary: {
       main: '#e4bb00',
     },
+    disabled: '#9e9e9e',
+    subtle: '#747474',
   },
   // palette: {
   //   // mode: 'dark',

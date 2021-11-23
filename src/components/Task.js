@@ -1,23 +1,33 @@
-import { useContext } from 'react';
-import { Button, LinearProgress, Chip } from '@mui/material';
-import { DStackColumn, DTextFieldInfo } from '../config/defaults';
+import { Fragment, useContext, useState } from 'react';
+import { Button, LinearProgress, Chip, InputAdornment, Paper, Tooltip } from '@mui/material';
+import { DStackColumn, Row, DTextFieldInfo, LabelWith } from '../config/defaults';
+import { Link } from 'react-router-dom';
 
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
-import LabelWithText from '../config/defaults';
+import { LabelWithText } from '../config/defaults';
 
 import { TokenContext, TaskContext, WalletContext } from './context/context';
-import { getTaskState } from '../config/utils';
+import { clamp, getTaskState, taskTimeDeltaInfo } from '../config/utils';
 
 import { getIcon, getProgressValue, dateDiffInDays, getReadableDate } from '../config/utils';
+import { Box } from '@mui/system';
 
-export const Task = ({ task, taskId, detailedTaskView }) => {
+export const DisplayTask = ({ match }) => {
+  console.log('rendering TASK');
+  console.log(match);
+  return null;
+};
+
+export const Task = ({ task, taskId, detailed }) => {
   const { walletAddress, signContract, handleTx, handleTxError } = useContext(WalletContext);
   const { tokenWhitelistAddressToSymbol } = useContext(TokenContext);
   const { updateTasks } = useContext(TaskContext);
+
+  const [promoterUserId, setPromoterUserId] = useState('');
 
   const fulfillTask = (id) => {
     signContract.fulfillTask(id).then(handleTx).then(updateTasks).catch(handleTxError);
@@ -29,67 +39,26 @@ export const Task = ({ task, taskId, detailedTaskView }) => {
   const now = new Date().getTime();
   // console.log(task.startDate < now, now < task.endDate, isPublic || walletAddress === task.promoter, task.status == 1);
 
-  return (
-    <DStackColumn style={{ position: 'relative' }}>
-      <h3 style={{ textAlign: 'left', marginTop: '0' }}>
-        <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>Task {taskId}</span>{' '}
-        <span style={{ position: 'absolute', right: '20px', top: '20px' }}>{getIcon('Twitter')}</span>
-      </h3>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Chip
-          label={getTaskState(task)}
-          color={getTaskState(task) === 'Open' ? 'success' : 'error'}
-          style={{ maxWidth: '70px', width: '100%' }}
-        />
-        <span style={{ marginTop: 'auto' }}>{dateDiffInDays(task)}</span>
-      </div>
-      <LinearProgress variant="determinate" value={getProgressValue(task)} />
+  const progress = clamp(((now - task.startDate) / (task.endDate - task.startDate)) * 100, 0, 100);
+  const taskState = getTaskState(task);
 
-      {LabelWithText(
-        'Reward',
-        task.depositAmount.toString() + ' ' + tokenWhitelistAddressToSymbol[task.erc20Token].toString()
-      )}
+  const description =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.';
 
-      <div style={{ display: 'flex', marginTop: '35px', marginBottom: '20px', justifyContent: 'space-evenly' }}>
-        <DTextFieldInfo style={{ width: '50%' }} label="Starts on" value={getReadableDate(new Date(task.startDate))} />
-        <DTextFieldInfo style={{ width: '50%' }} label="Ends on" value={getReadableDate(new Date(task.endDate))} />
-      </div>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography>Description</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <div style={{ textAlign: 'left' }}>
-            <Typography>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam
-              bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin
-              quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in
-              pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec
-              ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse
-              eu arcu mauris. Sed hendrerit ultricies porttitor.
-            </Typography>
-            <Typography>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam
-              bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin
-              quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in
-              pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec
-              ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse
-              eu arcu mauris. Sed hendrerit ultricies porttitor.
-            </Typography>
-          </div>
-        </AccordionDetails>
-      </Accordion>
-      {LabelWithText('Created by:', 'Username#1237')}
-      {LabelWithText('Promoter address', task.promoter)}
-      {/* <DTextFieldInfo label="Status" value={ID_TO_STATUS[task.status]} />
-            <DTextFieldInfo label="Platform" value={ID_TO_PLATFORM[task.platform]} />
-            <DTextFieldInfo label="Sponsor Address" value={task.sponsor} />
-            <DTextFieldInfo label="Promoter Address" value={task.promoter} />
-            <DTextFieldInfo label="Promoter User Id" value={task.promoterUserId} />
-            <DTextFieldInfo label="Start Date" value={new Date(task.startDate).toString()} />
-            <DTextFieldInfo label="End Date" value={new Date(task.endDate).toString()} />
-            <DTextFieldInfo label="Min Duration" value={formatDuration(task.minDuration)} />
-            <DTextFieldInfo label="Hash" value={task.hash} /> */}
+  const descriptionComp = detailed ? (
+    <Fragment>
+      <Row>
+        <Paper sx={{ padding: '1em' }}>
+          {/* <LabelWith placement="top" label="Description" text={descriptionShort}></LabelWith> */}
+          <LabelWith placement="top" label="Description">
+            <Typography style={{ textAlign: 'left' }}>{description.slice(0, 90) + ' ...'}</Typography>
+            <Button component={Link} to={'/task/' + taskId}>
+              view details
+            </Button>
+          </LabelWith>
+          {/* <LabelWithText placement="top" label="Description" text={descriptionShort} /> */}
+        </Paper>
+      </Row>
       <Button
         variant="contained"
         onClick={() => fulfillTask(taskId, task)}
@@ -104,6 +73,81 @@ export const Task = ({ task, taskId, detailedTaskView }) => {
       >
         Fulfill Task
       </Button>
+    </Fragment>
+  ) : (
+    <Fragment>
+      <Row>
+        <Paper sx={{ padding: '1em' }}>
+          <LabelWith placement="top" label="Description">
+            <Typography style={{ textAlign: 'left' }}>{description}</Typography>
+          </LabelWith>
+          {/* <LabelWithText placement="top" label="Description" text={description} /> */}
+        </Paper>
+      </Row>
+      <Button
+        variant="contained"
+        onClick={() => fulfillTask(taskId, task)}
+        disabled={
+          !(
+            task.startDate < now &&
+            now < task.endDate &&
+            (isPublic || walletAddress === task.promoter) &&
+            task.status === 1
+          )
+        }
+      >
+        Fulfill Task
+      </Button>
+    </Fragment>
+  );
+
+  return (
+    <DStackColumn style={{ position: 'relative' }}>
+      <Row>
+        <LabelWithText text={'Task ' + taskId} />
+        {/* <Typography>Task {taskId}</Typography> */}
+        {/* <h3 style={{ textAlign: 'left', marginTop: '0' }}>
+          <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>Task {taskId}</span>{' '}
+          <span style={{ position: 'absolute', right: '20px', top: '20px' }}>{getIcon('Twitter')}</span>
+        </h3> */}
+        <Row>
+          <LabelWithText label="Created by" text="Username#1237" />
+          {getIcon('Twitter')}
+        </Row>
+      </Row>
+
+      {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}> */}
+      <Row>
+        <LabelWith placement="right" label={taskTimeDeltaInfo(task)}>
+          <Chip label={taskState} color={taskState === 'Open' ? 'success' : 'error'} />
+        </LabelWith>
+      </Row>
+      {/* </div> */}
+      <LinearProgress variant="determinate" value={progress} />
+      <Row>
+        <Tooltip title={new Date(task.startDate).toString()} placement="top">
+          <Box>
+            <LabelWithText label="Starts" text={getReadableDate(new Date(task.startDate))} />{' '}
+          </Box>
+        </Tooltip>
+        <Tooltip title={new Date(task.endDate).toString()} placement="top">
+          <Box>
+            <LabelWithText label="Ends" text={getReadableDate(new Date(task.endDate))} />
+          </Box>
+        </Tooltip>
+      </Row>
+      <Row>
+        <LabelWithText
+          // placement="top"
+          label="Reward"
+          text={task.depositAmount.toString() + ' ' + tokenWhitelistAddressToSymbol[task.erc20Token].toString()}
+        />
+      </Row>
+      <Row>
+        <LabelWithText placement="top" label="Promoter address" text={task.promoter} />
+      </Row>
+
+      {descriptionComp}
     </DStackColumn>
   );
 };

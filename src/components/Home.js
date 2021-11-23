@@ -1,5 +1,5 @@
 // import { Link } from '@mui/material';
-import { ContractVitals } from './Dashboard';
+import { ContractVitals, DashBoard } from './Dashboard';
 import { CreateTask } from './CreateTask';
 import { OpenTasks } from './OpenTasks';
 
@@ -18,7 +18,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 
 // import * as React from 'react';
-import { useState, Fragment } from 'react';
+import { useState, Fragment, Component } from 'react';
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -42,7 +42,7 @@ import Box from '@mui/material/Box';
 // import Typography from '@mui/material/Typography';
 
 import { ReactComponent as TruPrLogo } from '../images/trupr.svg';
-import { Task } from './Task';
+// import { DisplayTask, Task } from './Task';
 
 const Socials = () => (
   <div className="socials">
@@ -60,6 +60,17 @@ const Socials = () => (
   </div>
 );
 const drawerWidth = 220;
+
+const DisplayTask = () => {
+  console.log('renderingggg');
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <Fragment>
+        <div>asldfjlasdfjalsdkfjlsd</div>
+      </Fragment>
+    </Box>
+  );
+};
 
 const Home = (props) => {
   const [tab, setTab] = useState(window.location?.pathname || '/');
@@ -89,6 +100,7 @@ const Home = (props) => {
   //   </div>
   // );
 
+  const validRoutes = ['/', '/open-tasks', '/create-task', '/profile'];
   return (
     <div className="app">
       <BrowserRouter>
@@ -103,13 +115,12 @@ const Home = (props) => {
               <TruPrLogo />
             </div>
             <Grid item sx={{ flexGrow: 1 }}>
-              <Tabs value={tab} onChange={handleChange}>
+              <Tabs value={validRoutes.includes(tab) ? tab : '/open-tasks'} onChange={handleChange}>
+                {/* <Tab label="None" value={'None'} style={{ display: 'none' }} /> */}
                 <Tab label="Dashboard" component={Link} value={'/'} to={'/'} />
                 <Tab label="Open Tasks" component={Link} value={'/open-tasks'} to={'/open-tasks'} />
                 <Tab label="Create Task" component={Link} value={'/create-task'} to={'/create-task'} />
-                {isAuthenticated && (
-                  <Tab label="Edit profile" component={Link} value={'/my-profile'} to={'/my-profile'} />
-                )}
+                {isAuthenticated && <Tab label="Edit profile" component={Link} value={'/profile'} to={'/profile'} />}
               </Tabs>
             </Grid>
             <Chains />
@@ -169,17 +180,17 @@ const Home = (props) => {
           <Box component="main" className="background" sx={{ flexGrow: 1, p: 3 }}>
             {/* <div className="solar"></div> */}
             <Routes>
-              <Route path="/" element={<ContractVitals />} />
+              <Route path="/" element={<DashBoard />} />
               <Route path="/open-tasks" element={<OpenTasks />} />
               <Route path="/create-task" element={<CreateTask />} />
-              <Route path="/my-profile" element={<Profile />} />
-              <Route path="/task/:id" component={Task} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/task" component={<DisplayTask />} />
             </Routes>
           </Box>
           <Grid
             container
             className="footer"
-            sx={{ display: 'inline-block', borderTop: 1, borderColor: 'divider', bgcolor: 'background.default' }}
+            sx={{ display: 'inline-block', borderTop: 1, borderColor: 'divider', bgcolor: 'paper' }}
           >
             <Socials />
           </Grid>

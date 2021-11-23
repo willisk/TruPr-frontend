@@ -79,7 +79,7 @@ export const OpenTasks = () => {
         <Grid container spacing={2}>
           {filtered.map((task, id) => (
             <Grid item key={id} xs={12} md={6} lg={4}>
-              <Task task={task} taskId={id} detailedTaskView />
+              <Task task={task} taskId={id} detailed />
             </Grid>
           ))}
         </Grid>

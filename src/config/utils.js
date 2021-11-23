@@ -14,7 +14,7 @@ export const copyAddKeyValue = (obj, key, value) => {
 };
 
 export const formatDuration = (delta) => {
-  const time = parseInt(delta, 10);
+  const time = parseInt(delta / 1000, 10);
 
   const days = Math.floor(time / (24 * 60 * 60));
   const hours = Math.floor((time - days * 24 * 60 * 60) / (60 * 60));
@@ -23,10 +23,17 @@ export const formatDuration = (delta) => {
 
   if (days > 0) return days + ' day' + (days > 1 ? 's' : '');
   if (hours > 0) return hours + ' hour' + (hours > 1 ? 's' : '');
-  if (minutes > 0) return minutes + ' minutes' + (minutes > 1 ? 's' : '');
-  if (seconds > 0) return seconds + ' seconds' + (seconds > 1 ? 's' : '');
+  if (minutes > 0) return minutes + ' minute' + (minutes > 1 ? 's' : '');
+  if (seconds > 0) return seconds + ' second' + (seconds > 1 ? 's' : '');
 
   return 'None';
+};
+
+export const taskTimeDeltaInfo = (task) => {
+  const now = new Date().getTime();
+  if (now <= task.startDate) return 'Starts in ' + formatDuration(task.startDate - now);
+  if (task.endDate <= now) return 'Ended ' + formatDuration(now - task.endDate) + ' ago';
+  return formatDuration(now - task.startDate) + ' left';
 };
 
 export const dateDiffInDays = (task) => {
@@ -34,7 +41,8 @@ export const dateDiffInDays = (task) => {
   let suffix = '';
   const a = new Date(task.startDate);
   const b = new Date(task.endDate);
-  const c = new Date();
+  const now = new Date();
+
   if (new Date() > b) {
     return '-';
   }
@@ -45,10 +53,11 @@ export const dateDiffInDays = (task) => {
   } else {
     suffix = ' days left';
   }
+
   // Discard the time and time-zone information.
   const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
   const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-  const today = Date.UTC(c.getFullYear(), c.getMonth(), c.getDate());
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
   let res = Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
 
@@ -59,10 +68,10 @@ export const dateDiffInDays = (task) => {
   return prefix + res + suffix;
 };
 
+export const clamp = (num, min, max) => (num <= min ? min : num >= max ? max : num);
+
 export const getProgressValue = (task) => {
-  const val = Math.round(
-    ((new Date() - new Date(task.startDate)) / (new Date(task.endDate) - new Date(task.startDate))) * 100
-  );
+  const val = Math.round(((new Date() - task.startDate) / (task.endDate - task.startDate)) * 100);
   return val > 100 ? 100 : val;
 };
 
