@@ -6,9 +6,9 @@ import DateTimePicker from '@mui/lab/DateTimePicker';
 import Typography from '@mui/material/Typography';
 import { Box } from '@mui/system';
 
-export const LabelWithText = ({ label, text, variant = 'subtle', placement = 'left', textStyle = {} }) => {
+export const LabelWithText = ({ label, text, variant = 'subtle', placement = 'left', tooltip, textStyle = {} }) => {
   return (
-    <LabelWith label={label} variant={variant} placement={placement}>
+    <LabelWith label={label} variant={variant} placement={placement} tooltip={tooltip}>
       <Typography
         style={{
           textAlign: 'left',
@@ -21,65 +21,73 @@ export const LabelWithText = ({ label, text, variant = 'subtle', placement = 'le
   );
 };
 
-export const LabelWith = ({ label, children, variant = 'subtle', placement = 'left' }) => {
+export const LabelWith = ({
+  label,
+  children,
+  variant = 'subtle',
+  tooltip,
+  tooltipPlacement = 'label',
+  placement = 'left',
+}) => {
   var labelStyle = variant === 'subtle' ? { color: 'subtle', fontSize: '14px' } : {};
   if (placement === 'right') labelStyle.paddingLeft = '0.5em';
   if (placement === 'left') labelStyle.paddingRight = '0.5em';
 
-  var divStyle = { marginBlock: 'auto' };
+  var divStyle = { marginBlock: 'auto', textAlign: 'left' }; // remove textAlign for top-centered label
   const placementBefore = placement === 'top' || placement === 'left';
 
-  if (placement === 'left' || placement === 'right') divStyle.display = 'inline-flex';
+  if (placement === 'left' || placement === 'right')
+    divStyle = { ...divStyle, display: 'inline-flex', justifyContent: 'space-between' };
 
-  const labelComponent = label && (
-    <div style={divStyle}>
-      <Typography sx={{ textAlign: 'left', ...labelStyle }}>{label}</Typography>
+  var labelElement = label && (
+    <div style={{ marginBlock: 'auto', display: 'inline-flex' }}>
+      <Typography inline sx={{ textAlign: 'left', ...labelStyle }}>
+        {label}
+      </Typography>
+
+      {tooltip && tooltipPlacement === '?' && (
+        <Tooltip title={tooltip} placement="top" style={{ marginRight: '0.5em' }}>
+          <Typography inline sx={{ color: '#9e9e9e' }}>
+            ?
+          </Typography>
+        </Tooltip>
+      )}
     </div>
   );
 
-  return (
+  if (tooltip && tooltipPlacement === 'label')
+    labelElement = label && (
+      <Tooltip placement="top" title={tooltip}>
+        {labelElement}
+      </Tooltip>
+    );
+
+  if (tooltip && tooltipPlacement === 'children')
+    children = (
+      <Tooltip placement="top" title={tooltip}>
+        {children}
+      </Tooltip>
+    );
+
+  var component = (
     <Box style={divStyle}>
-      {placementBefore && labelComponent}
-      {children}
-      {!placementBefore && labelComponent}
+      <Fragment>
+        {/* <div style={{ display: 'inline-flex', marginBlock: 'auto', justifyContent: 'space-between' }}> */}
+        {placementBefore && labelElement}
+        <div style={{ marginBlock: 'auto' }}>{children}</div>
+        {!placementBefore && labelElement}
+      </Fragment>
     </Box>
   );
-};
 
-export const Label = ({ description, children, tooltip, disabled, style = {} }) => {
-  if (disabled) style.color = 'disabled';
-  return (
-    <div style={{ display: 'inline-flex' }}>
-      <div style={{ marginBlock: 'auto' }}>
-        <Typography
-          // variant="h4"
-          sx={{
-            textAlign: 'left',
-            ...style,
-            // margin: 'auto',
-            // display: 'inline-flex',
-            // marginTop: '30px',
-            // fontWeight: '400',
-          }}
-        >
-          {description}
-        </Typography>
-      </div>
-      {tooltip && (
-        <div style={{ marginInline: '1em', marginBlock: 'auto' }}>
-          {/* <div style={{ marginLeft: '1em', marginRight: '1em', margin: 'auto' }}> */}
-          <Tooltip title={tooltip} placement="top">
-            {/* {'?'} */}
-            <Typography sx={{ color: '#9e9e9e' }}>?</Typography>
-          </Tooltip>
-        </div>
-      )}
-      {children}
-      {/* <Typography variant="body1" style={{ textAlign: 'left', marginTop: '5px' }}>
-      {text}
-    </Typography> */}
-    </div>
-  );
+  // if (tooltip && tooltipPlacement === 'component')
+  //   component = (
+  //     <Tooltip placement="top" title={tooltip}>
+  //       {component}
+  //     </Tooltip>
+  //   );
+
+  return component;
 };
 
 const StyledStack = styled(Stack)(({ theme }) => ({

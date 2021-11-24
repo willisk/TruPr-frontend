@@ -41,7 +41,8 @@ export const Task = ({ task, taskId, detailed }) => {
     task.status === 1;
 
   const fulfillTask = (id) => {
-    signContract.fulfillTask(id).then(handleTx).then(updateTasks).catch(handleTxError);
+    if (isPublic) signContract.fulfillTaskPublic(id, userId).then(handleTx).then(updateTasks).catch(handleTxError);
+    else signContract.fulfillTask(id).then(handleTx).then(updateTasks).catch(handleTxError);
   };
   // console.log(task);
 
@@ -57,22 +58,16 @@ export const Task = ({ task, taskId, detailed }) => {
     <DStackColumn style={{ position: 'relative' }}>
       <Row>
         <LabelWithText
-          // placement="right"
-          // text={'Task ' + taskId}
           label={isPublic ? 'Public task' : 'For ' + shortenAddress(task.promoter)}
           tooltip={!isPublic && task.promoter}
         />
-        {/* <Typography>Task {taskId}</Typography> */}
-        {/* <h3 style={{ textAlign: 'left', marginTop: '0' }}>
-          <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>Task {taskId}</span>{' '}
-          <span style={{ position: 'absolute', right: '20px', top: '20px' }}>{getIcon('Twitter')}</span>
-        </h3> */}
         <Row>
-          <LabelWith label="Created by">
+          <LabelWithText label="Created by" text="Username#1237" tooltip={task.sponsor} />
+          {/* <LabelWith label="Created by">
             <Tooltip title={task.sponsor} placement="top">
               <Typography>Username#1237</Typography>
             </Tooltip>
-          </LabelWith>
+          </LabelWith> */}
           {getIcon('Twitter')}
         </Row>
       </Row>
@@ -82,8 +77,13 @@ export const Task = ({ task, taskId, detailed }) => {
         <LabelWith placement="right" label={taskTimeDeltaInfo(task)}>
           <Chip label={taskState} color={taskState === 'Open' ? 'success' : 'error'} />
         </LabelWith>
+        <LabelWithText
+          // placement="top"
+          label="Reward"
+          text={task.depositAmount.toString() + ' ' + tokenWhitelistAddressToSymbol[task.erc20Token].toString()}
+        />
       </Row>
-      {/* </div> */}
+      <LinearProgress variant="determinate" value={progress} />
       <Row>
         <Tooltip title={new Date(task.startDate).toString()} placement="top">
           <Box>
@@ -96,44 +96,51 @@ export const Task = ({ task, taskId, detailed }) => {
           </Box>
         </Tooltip>
       </Row>
-      <LinearProgress variant="determinate" value={progress} />
-      <Row>
-        <LabelWithText
-          // placement="top"
-          label="Reward"
-          text={task.depositAmount.toString() + ' ' + tokenWhitelistAddressToSymbol[task.erc20Token].toString()}
-        />
-      </Row>
       <h3>{'Task ' + taskId}</h3>
 
-      <Row>
-        <Paper elevation={4} sx={{ padding: '1em' }}>
+      <Paper elevation={4} sx={{ padding: '1em' }}>
+        <Row>
           {/* <LabelWith placement="top" label="Description" text={descriptionShort}></LabelWith> */}
-          <LabelWith placement="top" label="Description">
+          <LabelWithText
+            placement="top"
+            label="Description"
+            text={detailed ? description : description.slice(0, 90) + ' ...'}
+          />
+          {/* <LabelWith placement="top" label="Description">
             <Typography style={{ textAlign: 'left' }}>
               {detailed ? description : description.slice(0, 90) + ' ...'}
             </Typography>
-            {!detailed && (
-              <Button component={Link} to={'/task/' + taskId}>
-                view details
-              </Button>
-            )}
-          </LabelWith>
+          </LabelWith> */}
           {/* <LabelWithText placement="top" label="Description" text={descriptionShort} /> */}
-        </Paper>
-      </Row>
+        </Row>
+        {!detailed && (
+          <Button component={Link} to={'/task/' + taskId}>
+            view details
+          </Button>
+        )}
+      </Paper>
       {detailed && (
         <Fragment>
-          <DTextField
-            label="Twitter User Id"
-            value={userId}
-            error={userIdTouched && !isPositiveInt(userId)}
-            helperText={userIdTouched && !isPositiveInt(userId) && 'Enter a valid user id'}
-            onChange={({ target }) => {
-              setUserIdTouched(true);
-              setUserId(target.value);
-            }}
-          />
+          <Row>
+            <LabelWith
+              variant="standard"
+              label="Enter your Twitter user id"
+              tooltip="This is the user id of the Twitter account you made the Tweet with."
+              tooltipPlacement="?"
+              placement="top"
+            >
+              <DTextField
+                label="Twitter User Id"
+                value={userId}
+                error={userIdTouched && !isPositiveInt(userId)}
+                helperText={userIdTouched && !isPositiveInt(userId) && 'Enter a valid user id'}
+                onChange={({ target }) => {
+                  setUserIdTouched(true);
+                  setUserId(target.value);
+                }}
+              />
+            </LabelWith>
+          </Row>
           <Button variant="contained" onClick={() => fulfillTask(taskId, task)} disabled={!canFulfillTask}>
             Fulfill Task
           </Button>

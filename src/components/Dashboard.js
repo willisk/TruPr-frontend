@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMemo, useState, useContext } from 'react';
 import { InputAdornment } from '@mui/material';
-import { DStackColumn, DTextFieldInfo } from '../config/defaults';
+import { DStackColumn, DTextFieldInfo, LabelWithText } from '../config/defaults';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -13,6 +13,8 @@ import Typography from '@mui/material/Typography';
 import { ethers } from 'ethers';
 
 import { TaskContext, WalletContext, Web3Context } from './context/context';
+import { getReadableDate, getTaskState, taskTimeDeltaInfo } from '../config/utils';
+import { Link } from 'react-router-dom';
 
 // ================== Contract Infos ====================
 
@@ -21,34 +23,41 @@ const MyTasks = () => {
   const { walletAddress } = useContext(WalletContext);
 
   const myTasks = tasks.filter((task) => task.promoter === walletAddress);
+  const myOpenTasks = myTasks.filter((task) => getTaskState(task) === 'Open');
+  const myClosedTasks = myTasks.filter((task) => getTaskState(task) === 'Closed');
 
-  const myTasksComponent = myTasks.length ? (
+  const TaskList = ({ tasks }) => (
     <List sx={{ width: '100%', bgcolor: 'paper', overflow: 'auto', maxHeight: 300 }}>
-      {myTasks.map((task) => (
-        <ListItemText
-          primary="Task 0"
-          secondary={
-            <React.Fragment>
-              <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                Status: OPEN
-              </Typography>
-              {' — Maybe go to a detail page on click?'}
-            </React.Fragment>
-          }
-        >
+      <Divider variant="inset" component="li" />
+      {tasks.map((task) => (
+        <li>
+          <Link to={'/task/' + task.id}>
+            <LabelWithText text={'Task ' + task.id} label={taskTimeDeltaInfo(task)} placement="right" />
+          </Link>
           <Divider variant="inset" component="li" />
-        </ListItemText>
+        </li>
       ))}
     </List>
-  ) : (
-    <div>No tasks yet.. look for open Tasks</div>
   );
 
   return (
     <Grid item xs={12} md={6} lg={4}>
       <DStackColumn>
         <h2>My Open Tasks</h2>
-        {myTasksComponent}
+        {myOpenTasks.length ? (
+          <TaskList tasks={myTasks} />
+        ) : (
+          <Typography>No tasks yet.. Head over to open tasks.</Typography>
+        )}
+        {/* {myOpenTasks} */}
+      </DStackColumn>
+      <DStackColumn>
+        <h2>My Closed Tasks</h2>
+        {myClosedTasks.length ? (
+          <TaskList tasks={myClosedTasks} />
+        ) : (
+          <Typography>No tasks yet.. Head over to open tasks.</Typography>
+        )}
       </DStackColumn>
     </Grid>
   );
