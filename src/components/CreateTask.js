@@ -13,6 +13,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TextField,
 } from '@mui/material';
 import {
   DStackColumn,
@@ -212,7 +213,9 @@ export const CreateTask = () => {
     handleStep(activeStep - 1);
   };
 
-  const TaskLabel = (props) => <LabelWith tooltipPlacement="?" variant="standard" {...props} />;
+  const RowLabel = (props) => (
+    <LabelWith tooltipPlacement="?" variant="standard" style={{ width: '100%' }} {...props} />
+  );
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -233,7 +236,7 @@ export const CreateTask = () => {
         {activeStep == 0 && (
           <>
             <Row>
-              <TaskLabel
+              <RowLabel
                 label="Choose the platform."
                 tooltip="This is the platform the promoter will use to complete the task on"
               >
@@ -251,15 +254,15 @@ export const CreateTask = () => {
                     </MenuItem>
                   ))}
                 </DTextField>
-              </TaskLabel>
+              </RowLabel>
             </Row>
             {/* </Row> */}
             <div style={{ margin: 'auto' }}>
               <Checkbox checked={isPublic} onChange={({ target }) => setIsPublic(target.checked)} />
               Public
             </div>
-            <div>
-              <TaskLabel
+            <div style={{}}>
+              <RowLabel
                 label="Enter the promoter's wallet address."
                 tooltip="This is the address that will receive the tokens after the task has been fulfilled"
               >
@@ -282,9 +285,9 @@ export const CreateTask = () => {
                     }}
                   />
                 )}
-              </TaskLabel>
+              </RowLabel>
             </div>
-            <TaskLabel
+            <RowLabel
               // style={{ color: 'red' }}
               disabled={isPublic}
               label={`Enter the promoter's ${platform} user id.`}
@@ -308,15 +311,16 @@ export const CreateTask = () => {
                   />
                 )}
               </>
-            </TaskLabel>
-            <TaskLabel
+            </RowLabel>
+            <RowLabel
               label="Enter the exact mesage for the promotion."
               tooltip="The exact message the promoter must relay. The promoter will not be able to complete the task if the message does not match exactly."
             >
               <></>
-            </TaskLabel>
-            <DTextField
+            </RowLabel>
+            <TextField
               multiline
+              variant="outlined"
               label="Message"
               value={message}
               error={isTouched('message') && !isValidMessage()}
@@ -333,7 +337,7 @@ export const CreateTask = () => {
             <Tooltip title="">
               <Typography></Typography>
             </Tooltip>
-            <TaskLabel
+            <RowLabel
               label="Enter the start and end date for the promotion."
               tooltip="The time frame the promoter will be given to fulfill his task. If the task is fulfilled in this time window, the promoter will still be able to get paid, even after the end date."
             />
@@ -359,7 +363,7 @@ export const CreateTask = () => {
                 helperText={isTouched('endDate') && !isValidEndDate() && 'End date must be after start date'}
               />
             </Row>
-            <TaskLabel
+            <RowLabel
               label="Enter the rewards set for the promotion."
               tooltip="The token and the amount to be paid out to the promoter upon fulfilling the task"
             >
@@ -393,8 +397,8 @@ export const CreateTask = () => {
                   ))}
                 </DTextField>
               </Row>
-            </TaskLabel>
-            <TaskLabel
+            </RowLabel>
+            <RowLabel
               label="Enter the metric to be tracked."
               tooltip="The metric the promoter will be evaluated on for their payout. Setting this to 'Time' means the promoter will get paid out over time once the task is complete."
             />

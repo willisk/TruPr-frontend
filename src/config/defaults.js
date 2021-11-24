@@ -28,12 +28,17 @@ export const LabelWith = ({
   tooltip,
   tooltipPlacement = 'label',
   placement = 'left',
+  style = {},
 }) => {
   var labelStyle = variant === 'subtle' ? { color: 'subtle', fontSize: '14px' } : {};
   if (placement === 'right') labelStyle.paddingLeft = '0.5em';
   if (placement === 'left') labelStyle.paddingRight = '0.5em';
 
-  var divStyle = { marginBlock: 'auto', textAlign: 'left' }; // remove textAlign for top-centered label
+  var divStyle = {
+    marginBlock: 'auto',
+    textAlign: 'left', // remove textAlign for top-centered label
+    // width: '100%',
+  };
   const placementBefore = placement === 'top' || placement === 'left';
 
   if (placement === 'left' || placement === 'right')
@@ -70,7 +75,7 @@ export const LabelWith = ({
     );
 
   var component = (
-    <Box style={divStyle}>
+    <Box sx={{ ...divStyle, ...style }}>
       <Fragment>
         {/* <div style={{ display: 'inline-flex', marginBlock: 'auto', justifyContent: 'space-between' }}> */}
         {placementBefore && labelElement}
@@ -115,9 +120,22 @@ export const DStackColumn = (props) => (
   <StyledStack className="glass-solid" sx={{ background: 'white' }} spacing={2} {...props} />
 );
 
-export const Row = (props) => <StyleRow spacing={2} direction="row" {...props} />;
+export const Row = (props) => <StyleRow spacing={4} direction="row" {...props} />;
 
-export const DTextField = (props) => <TextField variant="outlined" style={{ flexGrow: 1 }} {...props} />;
+export const DTextField = (props) => (
+  <TextField
+    variant="standard"
+    style={{
+      // width: 200,
+      width: '300px',
+      height: '4.5rem',
+      // maxHeight: '5rem',
+      // minHeight: '5rem',
+      // minHeight: '5rem' // makes the text field big enough for helpertext
+    }}
+    {...props}
+  />
+);
 
 export const DTextFieldInfo = (props) => (
   <DTextField
