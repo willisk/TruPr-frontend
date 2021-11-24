@@ -6,80 +6,102 @@ import DateTimePicker from '@mui/lab/DateTimePicker';
 import Typography from '@mui/material/Typography';
 import { Box } from '@mui/system';
 
-export const LabelWithText = ({ label, text, variant = 'subtle', placement = 'left', textStyle = {} }) => {
+export const LabelWithText = ({ label, text, variant = 'subtle', placement = 'left', tooltip, textStyle = {} }) => {
   return (
-    <LabelWith label={label} variant={variant} placement={placement}>
-      <Typography
-        style={{
-          textAlign: 'left',
-          ...textStyle,
-        }}
-      >
-        {text}
-      </Typography>
+    <LabelWith label={label} variant={variant} placement={placement} tooltip={tooltip}>
+      <div style={{ marginBlock: 'auto' }}>
+        <Typography
+          style={{
+            textAlign: 'left',
+            ...textStyle,
+          }}
+        >
+          {text}
+        </Typography>
+      </div>
     </LabelWith>
   );
 };
 
-export const LabelWith = ({ label, children, variant = 'subtle', placement = 'left' }) => {
-  var labelStyle = variant === 'subtle' ? { color: 'subtle', fontSize: '14px' } : {};
+export const RowLabel = (props) => (
+  <LabelWith tooltipPlacement="?" variant="standard" style={{ width: '100%' }} {...props} />
+);
+
+export const LabelWith = ({
+  label,
+  children,
+  variant = 'subtle',
+  tooltip,
+  tooltipPlacement = 'label',
+  placement = 'left',
+  style = {},
+  labelStyle = {},
+}) => {
+  if (variant === 'subtle') labelStyle = { ...labelStyle, color: 'subtle', fontSize: '14px' };
   if (placement === 'right') labelStyle.paddingLeft = '0.5em';
   if (placement === 'left') labelStyle.paddingRight = '0.5em';
 
-  var divStyle = { marginBlock: 'auto' };
+  var divStyle = {
+    marginBlock: 'auto',
+    textAlign: 'left', // remove textAlign for top-centered label
+    // width: '100%',
+    // display: 'inline-flex',
+  };
   const placementBefore = placement === 'top' || placement === 'left';
 
-  if (placement === 'left' || placement === 'right') divStyle.display = 'inline-flex';
+  if (placement === 'left' || placement === 'right')
+    divStyle = { ...divStyle, display: 'inline-flex', justifyContent: 'space-between' };
 
-  const labelComponent = label && (
-    <div style={divStyle}>
-      <Typography sx={{ textAlign: 'left', ...labelStyle }}>{label}</Typography>
+  var labelElement = label && (
+    <div style={{ marginBlock: 'auto', display: 'inline-flex' }}>
+      <Typography inline sx={{ textAlign: 'left', ...labelStyle }}>
+        {label}
+      </Typography>
+
+      {tooltip && tooltipPlacement === '?' && (
+        <Tooltip title={tooltip} placement="top" style={{ marginInline: '0.5em' }}>
+          <Typography inline sx={{ ...labelStyle, color: '#9e9e9e' }}>
+            ?
+          </Typography>
+        </Tooltip>
+      )}
     </div>
   );
 
-  return (
-    <Box style={divStyle}>
-      {placementBefore && labelComponent}
-      {children}
-      {!placementBefore && labelComponent}
+  if (tooltip && tooltipPlacement === 'label')
+    labelElement = label && (
+      <Tooltip placement="top" title={tooltip}>
+        {labelElement}
+      </Tooltip>
+    );
+
+  if (tooltip && tooltipPlacement === 'children')
+    children = (
+      <Tooltip placement="top" title={tooltip}>
+        {children}
+      </Tooltip>
+    );
+
+  var component = (
+    <Box sx={{ ...divStyle, ...style }}>
+      <Fragment>
+        {/* <div style={{ display: 'inline-flex', marginBlock: 'auto', justifyContent: 'space-between' }}> */}
+        {placementBefore && labelElement}
+        {/* <div style={{ marginBlock: 'auto' }}>{children}</div> */}
+        {children}
+        {!placementBefore && labelElement}
+      </Fragment>
     </Box>
   );
-};
 
-export const Label = ({ description, children, tooltip, disabled, style = {} }) => {
-  if (disabled) style.color = 'disabled';
-  return (
-    <div style={{ display: 'inline-flex' }}>
-      <div style={{ marginBlock: 'auto' }}>
-        <Typography
-          // variant="h4"
-          sx={{
-            textAlign: 'left',
-            ...style,
-            // margin: 'auto',
-            // display: 'inline-flex',
-            // marginTop: '30px',
-            // fontWeight: '400',
-          }}
-        >
-          {description}
-        </Typography>
-      </div>
-      {tooltip && (
-        <div style={{ marginInline: '1em', marginBlock: 'auto' }}>
-          {/* <div style={{ marginLeft: '1em', marginRight: '1em', margin: 'auto' }}> */}
-          <Tooltip title={tooltip} placement="top">
-            {/* {'?'} */}
-            <Typography sx={{ color: '#9e9e9e' }}>?</Typography>
-          </Tooltip>
-        </div>
-      )}
-      {children}
-      {/* <Typography variant="body1" style={{ textAlign: 'left', marginTop: '5px' }}>
-      {text}
-    </Typography> */}
-    </div>
-  );
+  // if (tooltip && tooltipPlacement === 'component')
+  //   component = (
+  //     <Tooltip placement="top" title={tooltip}>
+  //       {component}
+  //     </Tooltip>
+  //   );
+
+  return component;
 };
 
 const StyledStack = styled(Stack)(({ theme }) => ({
@@ -99,6 +121,7 @@ const StyleRow = styled(Stack)(({ theme }) => ({
   // marginRight: 'auto',
   textAlign: 'center',
   display: 'inline-flex',
+  // display: 'inline-fuck',
   justifyContent: 'space-between',
   // margin: 'auto',
 }));
@@ -107,12 +130,23 @@ export const DStackColumn = (props) => (
   <StyledStack className="glass-solid" sx={{ background: 'white' }} spacing={2} {...props} />
 );
 
-export const Row = (props) => <StyleRow spacing={2} direction="row" {...props} />;
+export const Row = (props) => <StyleRow spacing={4} direction="row" {...props} />;
 
-export const DTextField = (props) => <TextField variant="outlined" style={{ flexGrow: 1 }} {...props} />;
+export const StyledTextField = (props) => (
+  <TextField
+    variant="outlined"
+    {...props}
+    style={{
+      width: '250px',
+      height: '3.4em',
+      marginBlock: '0.5em',
+      ...props.style,
+    }}
+  />
+);
 
-export const DTextFieldInfo = (props) => (
-  <DTextField
+export const StyledTextFieldInfo = (props) => (
+  <StyledTextField
     variant="standard"
     inputProps={{
       readOnly: true,
@@ -138,6 +172,6 @@ export const DTextFieldInfo = (props) => (
 export const DDateTimePicker = ({ error, helperText, ...props }) => (
   <DateTimePicker
     {...props}
-    renderInput={(params) => <DTextField {...params} error={error} helperText={helperText} />}
+    renderInput={(params) => <StyledTextField {...params} error={error} helperText={helperText} />}
   />
 );
