@@ -17,12 +17,13 @@ import {
 } from '@mui/material';
 import {
   DStackColumn,
-  DTextField,
-  DTextFieldInfo,
+  StyledTextField,
+  StyledTextFieldInfo,
   DDateTimePicker,
   Row,
   LabelWith,
   LabelWithText,
+  RowLabel,
 } from '../config/defaults';
 import TruPrContract from '../contracts/TruPr.json';
 import tokenContract from '../contracts/ERC20.json';
@@ -213,10 +214,6 @@ export const CreateTask = () => {
     handleStep(activeStep - 1);
   };
 
-  const RowLabel = (props) => (
-    <LabelWith tooltipPlacement="?" variant="standard" style={{ width: '100%' }} {...props} />
-  );
-
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DStackColumn>
@@ -240,7 +237,7 @@ export const CreateTask = () => {
                 label="Choose the platform."
                 tooltip="This is the platform the promoter will use to complete the task on"
               >
-                <DTextField
+                <StyledTextField
                   select
                   label="Platform"
                   value={platform}
@@ -253,38 +250,42 @@ export const CreateTask = () => {
                       {platformName}
                     </MenuItem>
                   ))}
-                </DTextField>
+                </StyledTextField>
               </RowLabel>
             </Row>
-            {/* </Row> */}
-            <div style={{ margin: 'auto' }}>
-              <Checkbox checked={isPublic} onChange={({ target }) => setIsPublic(target.checked)} />
-              Public
-            </div>
+            <RowLabel
+              label="Will this be a public or a personalised task?"
+              tooltip="Having a personalised task means that only a specific user can fulfill this task. Public means that anyone can fulfill the task and claim the rewards."
+            >
+              <div style={{ margin: 'auto' }}>
+                <RowLabel label="Public" placement="right" variant="subtle">
+                  <Checkbox checked={isPublic} onChange={({ target }) => setIsPublic(target.checked)} />
+                </RowLabel>
+                {/* Public */}
+              </div>
+            </RowLabel>
             <div style={{}}>
               <RowLabel
                 label="Enter the promoter's wallet address."
                 tooltip="This is the address that will receive the tokens after the task has been fulfilled"
               >
-                {isPublic ? (
-                  <DTextField label="Promoter Address" disabled value={''} />
-                ) : (
-                  <DTextField
-                    label="Promoter Address"
-                    value={promoter}
-                    error={isTouched('promoter') && !isValidPromoter()}
-                    helperText={
-                      isTouched('promoter') &&
-                      !isValidPromoter() &&
-                      ((!isValidAddress(promoter) && 'Enter a valid address') ||
-                        'Address must differ from wallet address')
-                    }
-                    onChange={({ target }) => {
-                      touch('promoter');
-                      setPromoterAddress(target.value);
-                    }}
-                  />
-                )}
+                <StyledTextField
+                  label="Promoter Address"
+                  disabled={isPublic}
+                  value={isPublic ? '' : promoter}
+                  error={!isPublic && isTouched('promoter') && !isValidPromoter()}
+                  helperText={
+                    !isPublic &&
+                    isTouched('promoter') &&
+                    !isValidPromoter() &&
+                    ((!isValidAddress(promoter) && 'Enter a valid address') ||
+                      'Address must differ from wallet address')
+                  }
+                  onChange={({ target }) => {
+                    touch('promoter');
+                    setPromoterAddress(target.value);
+                  }}
+                />
               </RowLabel>
             </div>
             <RowLabel
@@ -293,24 +294,19 @@ export const CreateTask = () => {
               label={`Enter the promoter's ${platform} user id.`}
               tooltip="This is the user id of the promoter's account on the specified social network platform"
             >
-              <>
-                {isPublic ? (
-                  <DTextField label="Promoter User Id" disabled value={''} />
-                ) : (
-                  <DTextField
-                    label="Promoter User Id"
-                    value={promoterUserId}
-                    error={isTouched('promoterUserId') && !isPositiveInt(promoterUserId)}
-                    helperText={
-                      isTouched('promoterUserId') && !isPositiveInt(promoterUserId) && 'Enter a valid User Id'
-                    }
-                    onChange={({ target }) => {
-                      touch('promoterUserId');
-                      setPromoterUserId(target.value);
-                    }}
-                  />
-                )}
-              </>
+              <StyledTextField
+                label="Promoter User Id"
+                disabled={isPublic}
+                value={isPublic ? '' : promoterUserId}
+                error={!isPublic && isTouched('promoterUserId') && !isPositiveInt(promoterUserId)}
+                helperText={
+                  !isPublic && isTouched('promoterUserId') && !isPositiveInt(promoterUserId) && 'Enter a valid User Id'
+                }
+                onChange={({ target }) => {
+                  touch('promoterUserId');
+                  setPromoterUserId(target.value);
+                }}
+              />
             </RowLabel>
             <RowLabel
               label="Enter the exact mesage for the promotion."
@@ -367,14 +363,15 @@ export const CreateTask = () => {
               label="Enter the rewards set for the promotion."
               tooltip="The token and the amount to be paid out to the promoter upon fulfilling the task"
             >
-              <Row>
-                <DTextField
+              <div style={{ display: 'inline-flex' }}>
+                <StyledTextField
                   label="Amount"
+                  style={{ width: 130, marginRight: '0em' }}
                   value={depositAmount}
                   error={isTouched('depositAmount') && (!isPositiveInt(depositAmount) || !isValidDepositAmount())}
                   helperText={
                     isTouched('depositAmount') &&
-                    ((!isPositiveInt(depositAmount) && 'Enter a valid amount') ||
+                    ((!isPositiveInt(depositAmount) && 'Invalid amount') ||
                       (!isValidDepositAmount() && 'Amount exceeds balance'))
                   }
                   onChange={({ target }) => {
@@ -382,7 +379,7 @@ export const CreateTask = () => {
                     setDepositAmount(target.value);
                   }}
                 />
-                <DTextField
+                <StyledTextField
                   select
                   label="Token"
                   value={tokenSymbol}
@@ -395,18 +392,18 @@ export const CreateTask = () => {
                       {symbol + ' (balance: ' + tokenBalances[symbol] + ')'}
                     </MenuItem>
                   ))}
-                </DTextField>
-              </Row>
+                </StyledTextField>
+              </div>
             </RowLabel>
             <RowLabel
               label="Enter the metric to be tracked."
               tooltip="The metric the promoter will be evaluated on for their payout. Setting this to 'Time' means the promoter will get paid out over time once the task is complete."
-            />
-            <Row>
-              <DTextField
+            >
+              <StyledTextField
                 select
                 label="Metric"
                 value={metric}
+                style={{ width: 100 }}
                 onChange={({ target }) => {
                   setMetric(target.value);
                 }}
@@ -416,12 +413,21 @@ export const CreateTask = () => {
                     {choice}
                   </MenuItem>
                 ))}
-              </DTextField>
-              <div style={{ margin: 'auto' }}>
+              </StyledTextField>
+              <LabelWith
+                label="Linear rate"
+                placement="right"
+                tooltip="The payout will be linearly interpolated between the values."
+                tooltipPlacement="?"
+              >
                 <Checkbox checked={linearRate} onChange={({ target }) => setLinearRate(target.checked)} />
-                Linear Rate
-              </div>
-              <DTextField
+              </LabelWith>
+            </RowLabel>
+            <RowLabel
+              label="Should there be a cliff-period?"
+              tooltip="The cliff-priod determines a delay in the payout. The fulfillment of the task must have passed the cliff-period before the promoter is able to be paid out."
+            >
+              <StyledTextField
                 select
                 label="Cliff Period"
                 value={cliffPeriod}
@@ -434,8 +440,8 @@ export const CreateTask = () => {
                     {choice}
                   </MenuItem>
                 ))}
-              </DTextField>
-            </Row>
+              </StyledTextField>
+            </RowLabel>
           </>
         )}
         {activeStep == 2 && (
@@ -507,8 +513,9 @@ export const DevTools = () => {
   return (
     <DStackColumn>
       <h2>Dev Tools</h2>
-      <DTextField
+      <TextField
         select
+        variant="outlined"
         label="Token"
         value={tokenSymbol}
         onChange={({ target }) => {
@@ -520,7 +527,7 @@ export const DevTools = () => {
             {symbol + ' (balance: ' + tokenBalances[symbol] + ')'}
           </MenuItem>
         ))}
-      </DTextField>
+      </TextField>
       <Button variant="contained" onClick={mint}>
         Mint 1000
       </Button>

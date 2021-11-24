@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMemo, useState, useContext } from 'react';
 import { InputAdornment } from '@mui/material';
-import { DStackColumn, DTextFieldInfo, LabelWithText } from '../config/defaults';
+import { DStackColumn, StyledTextFieldInfo, LabelWithText } from '../config/defaults';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -137,16 +137,16 @@ export const ContractVitals = () => {
     <Grid item xs={12} md={6} lg={4}>
       <DStackColumn>
         <h2>Contract Infos</h2>
-        <DTextFieldInfo label="Address" value={contract?.address} />
-        <DTextFieldInfo label="Owner" value={contractOwner} />
-        <DTextFieldInfo
+        <StyledTextFieldInfo label="Address" value={contract?.address} />
+        <StyledTextFieldInfo label="Owner" value={contractOwner} />
+        <StyledTextFieldInfo
           label="Balance"
           value={parseFloat(ethers.utils.formatEther(contractBalance)).toFixed(4)}
           InputProps={{
             startAdornment: <InputAdornment position="start">Ξ</InputAdornment>,
           }}
         />
-        <DTextFieldInfo label="Task Count" value={taskCount} />
+        <StyledTextFieldInfo label="Task Count" value={taskCount} />
       </DStackColumn>
     </Grid>
   );

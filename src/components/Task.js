@@ -1,6 +1,6 @@
 import { Fragment, useContext, useState } from 'react';
 import { Button, LinearProgress, Chip, InputAdornment, Paper, Tooltip } from '@mui/material';
-import { DStackColumn, Row, DTextFieldInfo, LabelWith, DTextField } from '../config/defaults';
+import { DStackColumn, Row, StyledTextFieldInfo, LabelWith, StyledTextField } from '../config/defaults';
 import { Link, useParams } from 'react-router-dom';
 
 import Accordion from '@mui/material/Accordion';
@@ -129,7 +129,7 @@ export const Task = ({ task, taskId, detailed }) => {
               tooltipPlacement="?"
               placement="top"
             >
-              <DTextField
+              <StyledTextField
                 label="Twitter User Id"
                 value={userId}
                 error={userIdTouched && !isPositiveInt(userId)}

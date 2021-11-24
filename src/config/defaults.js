@@ -21,6 +21,10 @@ export const LabelWithText = ({ label, text, variant = 'subtle', placement = 'le
   );
 };
 
+export const RowLabel = (props) => (
+  <LabelWith tooltipPlacement="?" variant="standard" style={{ width: '100%' }} {...props} />
+);
+
 export const LabelWith = ({
   label,
   children,
@@ -29,8 +33,9 @@ export const LabelWith = ({
   tooltipPlacement = 'label',
   placement = 'left',
   style = {},
+  labelStyle = {},
 }) => {
-  var labelStyle = variant === 'subtle' ? { color: 'subtle', fontSize: '14px' } : {};
+  if (variant === 'subtle') labelStyle = { ...labelStyle, color: 'subtle', fontSize: '14px' };
   if (placement === 'right') labelStyle.paddingLeft = '0.5em';
   if (placement === 'left') labelStyle.paddingRight = '0.5em';
 
@@ -51,8 +56,8 @@ export const LabelWith = ({
       </Typography>
 
       {tooltip && tooltipPlacement === '?' && (
-        <Tooltip title={tooltip} placement="top" style={{ marginRight: '0.5em' }}>
-          <Typography inline sx={{ color: '#9e9e9e' }}>
+        <Tooltip title={tooltip} placement="top" style={{ marginInline: '0.5em' }}>
+          <Typography inline sx={{ ...labelStyle, color: '#9e9e9e' }}>
             ?
           </Typography>
         </Tooltip>
@@ -79,7 +84,8 @@ export const LabelWith = ({
       <Fragment>
         {/* <div style={{ display: 'inline-flex', marginBlock: 'auto', justifyContent: 'space-between' }}> */}
         {placementBefore && labelElement}
-        <div style={{ marginBlock: 'auto' }}>{children}</div>
+        {/* <div style={{ marginBlock: 'auto' }}>{children}</div> */}
+        {children}
         {!placementBefore && labelElement}
       </Fragment>
     </Box>
@@ -122,23 +128,28 @@ export const DStackColumn = (props) => (
 
 export const Row = (props) => <StyleRow spacing={4} direction="row" {...props} />;
 
-export const DTextField = (props) => (
+export const StyledTextField = (props) => (
   <TextField
-    variant="standard"
+    variant="outlined"
+    {...props}
     style={{
       // width: 200,
-      width: '300px',
-      height: '4.5rem',
+      width: '250px',
+      // height: '4.5rem',
+      // height: '3.4rem',
+      height: '3.4em',
+      marginBlock: '0.5em',
+      // padding: '1em',
       // maxHeight: '5rem',
       // minHeight: '5rem',
       // minHeight: '5rem' // makes the text field big enough for helpertext
+      ...props.style,
     }}
-    {...props}
   />
 );
 
-export const DTextFieldInfo = (props) => (
-  <DTextField
+export const StyledTextFieldInfo = (props) => (
+  <StyledTextField
     variant="standard"
     inputProps={{
       readOnly: true,
@@ -164,6 +175,6 @@ export const DTextFieldInfo = (props) => (
 export const DDateTimePicker = ({ error, helperText, ...props }) => (
   <DateTimePicker
     {...props}
-    renderInput={(params) => <DTextField {...params} error={error} helperText={helperText} />}
+    renderInput={(params) => <StyledTextField {...params} error={error} helperText={helperText} />}
   />
 );

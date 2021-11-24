@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useContext } from 'react';
 import { Checkbox } from '@mui/material';
-import { DTextField } from '../config/defaults';
+import { StyledTextField } from '../config/defaults';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -65,7 +65,7 @@ export const OpenTasks = () => {
           </Select>
         </FormControl>
         <div>
-          <DTextField
+          <StyledTextField
             label="Search"
             value={search}
             onChange={({ target }) => {
