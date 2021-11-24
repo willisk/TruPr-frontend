@@ -19,6 +19,7 @@ import TruPrContract from '../contracts/TruPr.json';
 import tokenContract from '../contracts/ERC20.json';
 import { useNewMoralisObject, useMoralis, useMoralisQuery } from 'react-moralis';
 import Moralis from 'moralis';
+import { useMoralisDapp } from '../providers/MoralisDappProvider/MoralisDappProvider';
 
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -44,8 +45,8 @@ const steps = ['Task Details', 'Rewards', 'Finalize'];
 
 export const CreateTask = () => {
   const { isSaving, error, save } = useNewMoralisObject('Task');
-  const { refetchUserData, setUserData, userError, isUserUpdating, walletAddress, user, isAuthUndefined } =
-    useMoralis();
+  const { refetchUserData, setUserData, userError, isUserUpdating, user, isAuthUndefined } = useMoralis();
+  const { walletAddress } = useMoralisDapp();
 
   // console.log('rendering', 'Create')
   const [activeStep, setActiveStep] = useState(0);
@@ -95,8 +96,8 @@ export const CreateTask = () => {
     return message !== '';
   };
 
-  const isValidPromoter = (promoter) => {
-    return isValidAddress(promoter) && promoter !== walletAddress;
+  const isValidPromoter = () => {
+    return isValidAddress(promoter) && promoter.toLowerCase() !== walletAddress.toLowerCase();
   };
 
   const isValidStartDate = () => {
@@ -291,8 +292,9 @@ export const CreateTask = () => {
                   error={isTouched('promoter') && !isValidPromoter()}
                   helperText={
                     isTouched('promoter') &&
+                    !isValidPromoter() &&
                     ((!isValidAddress(promoter) && 'Enter a valid address') ||
-                      (promoter !== walletAddress && 'Address must be differ from wallet address'))
+                      'Address must differ from wallet address')
                   }
                   onChange={({ target }) => {
                     touch('promoter');
