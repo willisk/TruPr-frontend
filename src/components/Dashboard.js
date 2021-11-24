@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import { ethers } from 'ethers';
 
 import { TaskContext, WalletContext, Web3Context } from './context/context';
+import { getTaskState } from '../config/utils';
 
 // ================== Contract Infos ====================
 
@@ -20,17 +21,20 @@ const MyTasks = () => {
   const { tasks } = useContext(TaskContext);
   const { walletAddress } = useContext(WalletContext);
 
-  const myTasks = tasks.filter((task) => task.promoter === walletAddress);
+  const myTasks = tasks.filter(
+    (task) => task.promoter.toLowerCase() === walletAddress.toLowerCase() && getTaskState(task) === 'Open'
+  );
 
   const myTasksComponent = myTasks.length ? (
     <List sx={{ width: '100%', bgcolor: 'paper', overflow: 'auto', maxHeight: 300 }}>
       {myTasks.map((task) => (
         <ListItemText
-          primary="Task 0"
+          key={task.id}
+          primary={`Task ${task.id}`}
           secondary={
             <React.Fragment>
               <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                Status: OPEN
+                "Status: Open"
               </Typography>
               {' — Maybe go to a detail page on click?'}
             </React.Fragment>
@@ -55,38 +59,33 @@ const MyTasks = () => {
 };
 
 const MyPreviousTasks = () => {
+  const { tasks } = useContext(TaskContext);
+  const { walletAddress } = useContext(WalletContext);
+
+  const myTasks = tasks.filter(
+    (task) => task.promoter.toLowerCase() === walletAddress.toLowerCase() && getTaskState(task) !== 'Open'
+  );
+
   return (
     <Grid item xs={12} md={6} lg={4}>
       <DStackColumn>
         <h2>My Closed Tasks</h2>
         <List sx={{ width: '100%', bgcolor: 'background.paper', overflow: 'auto', maxHeight: 300 }}>
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: CLOSED
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: CLOSED
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
+          {myTasks.map((task) => (
+            <ListItem alignItems="flex-start" key={task.id}>
+              <ListItemText
+                primary={`Task ${task.id}`}
+                secondary={
+                  <React.Fragment>
+                    <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
+                      {getTaskState(task)}
+                    </Typography>
+                    {' — Maybe go to a detail page on click?'}
+                  </React.Fragment>
+                }
+              />
+            </ListItem>
+          ))}
         </List>
       </DStackColumn>
     </Grid>

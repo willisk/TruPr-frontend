@@ -21,10 +21,11 @@ export const TaskConnector = ({ children }) => {
     contract
       .getAllTaskAndState()
       .then((_tasks, _pendingRevokeTime) => {
-        _tasks = _tasks[0].map((task) => {
+        _tasks = _tasks[0].map((task, id) => {
           // console.log('parsing', task);
           return {
             ...task,
+            id: id,
             startDate: task.startDate * 1000,
             endDate: task.endDate * 1000,
             vestingTerm: task.vestingTerm * 1000,

@@ -10,6 +10,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import { LabelWithText } from '../config/defaults';
 
+import { useMoralisQuery } from 'react-moralis';
+import Moralis from 'moralis';
+
 import { TokenContext, TaskContext, WalletContext } from './context/context';
 import { isPositiveInt, isValidAddress, shortenAddress, clamp, getTaskState, taskTimeDeltaInfo } from '../config/utils';
 
@@ -29,6 +32,20 @@ export const Task = ({ task, taskId, detailed }) => {
   const { updateTasks } = useContext(TaskContext);
   const [userId, setUserId] = useState('');
   const [userIdTouched, setUserIdTouched] = useState(false);
+  let description, name;
+
+  const { data, error, isLoading } = useMoralisQuery('Task', (query) =>
+    query.exists('taskId').equalTo('taskId', taskId.toString()).select('description', 'name', 'taskId')
+  );
+
+  if (data[0]) {
+    const parsedData = JSON.parse(JSON.stringify(data[0]));
+    description = parsedData.description;
+    name = parsedData.name;
+  } else {
+    description = 'No description found';
+    name = `Task ${taskId}`;
+  }
 
   const isPublic = task.promoter == 0;
   const now = new Date().getTime();
@@ -49,9 +66,6 @@ export const Task = ({ task, taskId, detailed }) => {
 
   const progress = clamp(((now - task.startDate) / (task.endDate - task.startDate)) * 100, 0, 100);
   const taskState = getTaskState(task);
-
-  const description =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et rutrum mi. Vestibulum aliquam bibendum sodales. Donec faucibus malesuada magna vitae mattis. Nulla pharetra ultrices faucibus. Proin quis enim non purus pretium fermentum. Praesent ac elit tristique, suscipit dolor et, mattis ex. Nam in pharetra tellus. Nullam laoreet nibh non efficitur volutpat. Donec sodales est vitae dolor elementum, nec ultricies ante fringilla. Sed vitae egestas tortor, eu vehicula nunc. Aliquam erat volutpat. Suspendisse eu arcu mauris. Sed hendrerit ultricies porttitor.';
 
   return (
     <DStackColumn style={{ position: 'relative' }}>
@@ -104,10 +118,10 @@ export const Task = ({ task, taskId, detailed }) => {
           text={task.depositAmount.toString() + ' ' + tokenWhitelistAddressToSymbol[task.erc20Token].toString()}
         />
       </Row>
-      <h3>{'Task ' + taskId}</h3>
+      <h3>{name}</h3>
 
       <Row>
-        <Paper elevation={4} sx={{ padding: '1em' }}>
+        <Paper elevation={4} sx={{ padding: '1em' }} style={{ width: '100%' }}>
           {/* <LabelWith placement="top" label="Description" text={descriptionShort}></LabelWith> */}
           <LabelWith placement="top" label="Description">
             <Typography style={{ textAlign: 'left' }}>

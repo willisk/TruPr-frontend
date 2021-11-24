@@ -170,11 +170,14 @@ export const CreateTask = () => {
       .then(handleTx)
       .then((receipt) => {
         let taskId = receipt.events.at(-1).args.taskId.toString();
+
         console.log('Task id should be:', taskId);
+
         save({
           taskId: taskId,
           status: 1,
           name: name,
+          message: isPublic ? message : '',
           description: isPublic ? `Promotion content: \n${message}\nDescription: \n${description}` : description,
           type: isPublic ? 'Public' : 'Personal',
           platform: platform,

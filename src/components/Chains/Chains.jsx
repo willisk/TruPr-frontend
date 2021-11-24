@@ -103,24 +103,30 @@ function Chains() {
   const defaultValue = () => {
     return (
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        {selected.icon}
-        <span style={{ marginLeft: '5px' }}>{selected.value}</span>
+        {selected?.icon}
+        <span style={{ marginLeft: '5px' }}>{selected?.value}</span>
       </div>
     );
   };
   return (
     <div>
       <FormControl fullWidth>
-          <Select style={{height:'3em'}} displayEmpty renderValue={defaultValue} value={selected} onChange={handleClick}>
-            {menuItems.map((item) => (
-              <MenuItem value={item.key} key={item.key} icon={item.icon} style={styles.item}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  {item.icon}
-                  <span style={{ marginLeft: '5px' }}>{item.value}</span>
-                </div>
-              </MenuItem>
-            ))}
-          </Select>
+        <Select
+          style={{ height: '3em' }}
+          displayEmpty
+          renderValue={defaultValue}
+          value={selected}
+          onChange={handleClick}
+        >
+          {menuItems.map((item) => (
+            <MenuItem value={item.key} key={item.key} icon={item.icon} style={styles.item}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {item.icon}
+                <span style={{ marginLeft: '5px' }}>{item.value}</span>
+              </div>
+            </MenuItem>
+          ))}
+        </Select>
       </FormControl>
     </div>
   );
