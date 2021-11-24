@@ -55,6 +55,8 @@ export const CreateTask = () => {
   const [promoterUserId, setPromoterUserId] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [message, setMessage] = useState('');
+  const [description, setDescription] = useState('');
+  const [name, setName] = useState('');
 
   const [tokenSymbol, setTokenSymbol] = useState('MOCK');
   const [depositAmount, setDepositAmount] = useState('');
@@ -165,24 +167,31 @@ export const CreateTask = () => {
         task.data
       )
       .then(handleTx)
+      .then((receipt) => {
+        let taskId = receipt.events.at(-1).args.taskId.toString();
+        console.log('Task id should be:', taskId);
+        save({
+          taskId: taskId,
+          status: 1,
+          name: name,
+          description: isPublic ? `Promotion content: \n${message}\nDescription: \n${description}` : description,
+          type: isPublic ? 'Public' : 'Personal',
+          platform: platform,
+          sponsor: user,
+          sponsorAddress: user.attributes.ethAddress,
+          promoterId: promoterUserId,
+          promoterAddress: promoter,
+          token: token.address,
+          depositAmount: depositAmount,
+          startDate: startDate,
+          endDate: endDate,
+          cliff: cliffPeriod,
+          linearRate: linearRate,
+          xticks: [100],
+          yticks: [depositAmount],
+        });
+      })
       .catch(handleTxError);
-
-    save({
-      status: 0,
-      platform: platform,
-      sponsor: user,
-      sponsorAddress: user.attributes.ethAddress,
-      promoterId: promoterUserId,
-      promoterAddress: promoter,
-      token: token.address,
-      depositAmount: depositAmount,
-      startDate: startDate,
-      endDate: endDate,
-      cliff: cliffPeriod,
-      linearRate: linearRate,
-      xticks: [100],
-      yticks: [depositAmount],
-    });
   };
 
   const touch = (key) => {
@@ -242,6 +251,27 @@ export const CreateTask = () => {
                   </MenuItem>
                 ))}
               </DTextField>
+            </Label>
+            <Label description="Enter the name of your promotion" tooltip=" ">
+              <DTextField
+                label="Name"
+                value={name}
+                onChange={({ target }) => {
+                  setName(target.value);
+                }}
+              />
+            </Label>
+            <Label
+              description="Enter your promotion description"
+              tooltip="You can describe who you are, what your goals are, what target group you're aiming for etc."
+            >
+              <DTextField
+                label="Name"
+                value={description}
+                onChange={({ target }) => {
+                  setDescription(target.value);
+                }}
+              />
             </Label>
             <div style={{ margin: 'auto' }}>
               <Checkbox checked={isPublic} onChange={({ target }) => setIsPublic(target.checked)} />

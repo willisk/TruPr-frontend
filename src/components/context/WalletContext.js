@@ -95,9 +95,9 @@ export const WalletConnector = ({ children }) => {
 
   const handleTx = useCallback(async (tx) => {
     alert(<TransactionLink txHash={tx.hash} message="Processing Transaction" />, 'info');
-    const { transactionHash } = await tx.wait();
-    alert(<TransactionLink txHash={transactionHash} message="Transaction successful!" />, 'success');
-    return tx;
+    const receipt = await tx.wait();
+    alert(<TransactionLink txHash={receipt.transactionHash} message="Transaction successful!" />, 'success');
+    return receipt;
   }, []);
 
   // ------- handle accounts --------
