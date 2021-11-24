@@ -63,51 +63,11 @@ const MyTasks = () => {
   );
 };
 
-const MyPreviousTasks = () => {
-  return (
-    <Grid item xs={12} md={6} lg={4}>
-      <DStackColumn>
-        <h2>My Closed Tasks</h2>
-        <List sx={{ width: '100%', bgcolor: 'background.paper', overflow: 'auto', maxHeight: 300 }}>
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: CLOSED
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Task 0"
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    Status: CLOSED
-                  </Typography>
-                  {' — Maybe go to a detail page on click?'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-        </List>
-      </DStackColumn>
-    </Grid>
-  );
-};
-
 export const DashBoard = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
         <MyTasks />
-        <MyPreviousTasks />
       </Grid>
     </Box>
   );

@@ -9,14 +9,16 @@ import { Box } from '@mui/system';
 export const LabelWithText = ({ label, text, variant = 'subtle', placement = 'left', tooltip, textStyle = {} }) => {
   return (
     <LabelWith label={label} variant={variant} placement={placement} tooltip={tooltip}>
-      <Typography
-        style={{
-          textAlign: 'left',
-          ...textStyle,
-        }}
-      >
-        {text}
-      </Typography>
+      <div style={{ marginBlock: 'auto' }}>
+        <Typography
+          style={{
+            textAlign: 'left',
+            ...textStyle,
+          }}
+        >
+          {text}
+        </Typography>
+      </div>
     </LabelWith>
   );
 };
@@ -43,6 +45,7 @@ export const LabelWith = ({
     marginBlock: 'auto',
     textAlign: 'left', // remove textAlign for top-centered label
     // width: '100%',
+    // display: 'inline-flex',
   };
   const placementBefore = placement === 'top' || placement === 'left';
 
@@ -118,6 +121,7 @@ const StyleRow = styled(Stack)(({ theme }) => ({
   // marginRight: 'auto',
   textAlign: 'center',
   display: 'inline-flex',
+  // display: 'inline-fuck',
   justifyContent: 'space-between',
   // margin: 'auto',
 }));
@@ -133,16 +137,9 @@ export const StyledTextField = (props) => (
     variant="outlined"
     {...props}
     style={{
-      // width: 200,
       width: '250px',
-      // height: '4.5rem',
-      // height: '3.4rem',
       height: '3.4em',
       marginBlock: '0.5em',
-      // padding: '1em',
-      // maxHeight: '5rem',
-      // minHeight: '5rem',
-      // minHeight: '5rem' // makes the text field big enough for helpertext
       ...props.style,
     }}
   />

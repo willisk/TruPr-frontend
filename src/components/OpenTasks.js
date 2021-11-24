@@ -18,16 +18,17 @@ const doFilterByText = (tasks, search) => {
   return tasks.filter((task) => task.data.includes(search));
 };
 
-const doFilterBySort = (tasks, search) => {
-  if (search === 'createdat_down') {
-    return tasks.sort((a, b) => (a.startDate > b.startDate ? 1 : b.startDate > a.startDate ? -1 : 0));
-  } else if (search === 'createdat_up') {
-    return tasks.sort((a, b) => (a.startDate < b.startDate ? 1 : b.startDate < a.startDate ? -1 : 0));
-  }
+const doFilterBySort = (tasks, sort) => {
+  if (sort === 'dateDesc') return tasks.sort((a, b) => a.startDate - b.startDate);
+  else if (sort === 'dateAsc') return tasks.sort((a, b) => b.startDate - a.startDate);
 };
 
 export const OpenTasks = () => {
   const [viewAll, setViewAll] = useState(true);
+
+  // const [filter, setFilter] = useState({
+  //   onlyPublic:
+  // });
 
   const { walletAddress } = useContext(WalletContext);
   const { tasks } = useContext(TaskContext);
@@ -36,7 +37,7 @@ export const OpenTasks = () => {
 
   var filtered = tasks;
 
-  if (tasks?.length) {
+  if (filtered?.length) {
     if (!viewAll) filtered = filtered.filter((task) => task.promoter == 0 || task.promoter === walletAddress);
     if (search !== '') filtered = doFilterByText(filtered, search);
     if (sort !== '') filtered = doFilterBySort(filtered, sort);
@@ -50,18 +51,16 @@ export const OpenTasks = () => {
           View all tasks
         </div>
         <FormControl style={{ width: '150px' }}>
-          <InputLabel id="task-sort-label">Sort by</InputLabel>
+          <InputLabel>Sort by</InputLabel>
           <Select
-            labelId="task-sort-label"
-            id="task-sort-select"
             value={sort}
             label="Sort by"
             onChange={({ target }) => {
               setSort(target.value);
             }}
           >
-            <MenuItem value="createdat_down">Created ASC</MenuItem>
-            <MenuItem value="createdat_up">Created DESC</MenuItem>
+            <MenuItem value="dateDesc">Date: Newest</MenuItem>
+            <MenuItem value="dateAsc">Date: Oldest</MenuItem>
           </Select>
         </FormControl>
         <div>

@@ -1,6 +1,6 @@
 import { Fragment, useContext, useState } from 'react';
 import { Button, LinearProgress, Chip, InputAdornment, Paper, Tooltip } from '@mui/material';
-import { DStackColumn, Row, StyledTextFieldInfo, LabelWith, StyledTextField } from '../config/defaults';
+import { DStackColumn, Row, RowLabel, LabelWith, StyledTextField } from '../config/defaults';
 import { Link, useParams } from 'react-router-dom';
 
 import Accordion from '@mui/material/Accordion';
@@ -119,18 +119,21 @@ export const Task = ({ task, taskId, detailed }) => {
           </Button>
         )}
       </Paper>
+
       {detailed && (
         <Fragment>
           <Row>
-            <LabelWith
+            <RowLabel
               variant="standard"
+              style={{ justifyContenet: 'left' }}
               label="Enter your Twitter user id"
               tooltip="This is the user id of the Twitter account you made the Tweet with."
               tooltipPlacement="?"
-              placement="top"
+              placement="left"
             >
               <StyledTextField
                 label="Twitter User Id"
+                // style={{ width: '100%' }}
                 value={userId}
                 error={userIdTouched && !isPositiveInt(userId)}
                 helperText={userIdTouched && !isPositiveInt(userId) && 'Enter a valid user id'}
@@ -139,7 +142,7 @@ export const Task = ({ task, taskId, detailed }) => {
                   setUserId(target.value);
                 }}
               />
-            </LabelWith>
+            </RowLabel>
           </Row>
           <Button variant="contained" onClick={() => fulfillTask(taskId, task)} disabled={!canFulfillTask}>
             Fulfill Task
